@@ -366,9 +366,26 @@ html,body{width:100%;min-height:100%;overflow-x:hidden}
 .snake-topbar,.mini-topbar{position:sticky}
 
 .login-credit{text-align:center;margin-top:18px;color:#777;font-size:11px;letter-spacing:.4px}.auth-box{padding-bottom:24px}
+
+#authPage{display:flex !important}
+#dashboard{display:none !important}
+#authPage.app-hidden{display:none !important}
+#dashboard.app-visible{display:block !important}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>if(!window.supabase){document.write('<script src="https://unpkg.com/@supabase/supabase-js@2"><\\/script>')}</script>
+<script>
+const RAKIB_SUPABASE_URL="https://hqgbhzuvyknrkzpmeytn.supabase.co";
+const RAKIB_SUPABASE_KEY="sb_publishable_KSOwOnl7GHqwGyZ25oz-lQ_JTPIta6k";
+function initRakibSupabase(){
+  if(window.rakibSupabase) return window.rakibSupabase;
+  if(window.supabase && typeof window.supabase.createClient === "function"){
+    window.rakibSupabase=window.supabase.createClient(RAKIB_SUPABASE_URL,RAKIB_SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+  }
+  return window.rakibSupabase || null;
+}
+initRakibSupabase();
+</script>
 </head>
 <body>
 
@@ -574,8 +591,8 @@ html,body{width:100%;min-height:100%;overflow-x:hidden}
 function showAuthPage(){
   const auth=document.getElementById("authPage");
   const dash=document.getElementById("dashboard");
-  if(auth) auth.style.display="flex";
-  if(dash) dash.style.display="none";
+  if(auth) auth.style.setProperty("display","flex","important");
+  if(dash) dash.style.setProperty("display","none","important");
   document.querySelectorAll(".game-screen,.mini-game-screen").forEach(el=>el.classList.remove("active"));
   document.body.style.overflow="";
 }
@@ -583,8 +600,10 @@ function showAuthPage(){
 function showAppPage(){
   const auth=document.getElementById("authPage");
   const dash=document.getElementById("dashboard");
-  if(auth) auth.style.display="none";
-  if(dash) dash.style.display="block";
+  if(auth) auth.style.setProperty("display","none","important");
+  if(dash) dash.style.setProperty("display","block","important");
+  document.querySelectorAll(".game-screen,.mini-game-screen").forEach(el=>el.classList.remove("active"));
+  document.body.style.overflow="";
 }
 
 function showLogin(){
@@ -667,20 +686,26 @@ async function login(){
 }
 
 async function loadDashboard(){
-  if(!window.rakibSupabase)return false;
-  const {data:{session},error:sessionError}=await window.rakibSupabase.auth.getSession();
-  if(sessionError||!session||!session.user)return false;
-  const authUser=session.user;
+  const sb=initRakibSupabase();
+  if(!sb) return false;
+  const {data,error}=await sb.auth.getSession();
+  if(error || !data || !data.session || !data.session.user) return false;
+  const authUser=data.session.user;
   const meta=authUser.user_metadata||{};
   const user={
     name:meta.name||authUser.email?.split("@")[0]||"Player",
     email:authUser.email||"",
     profilePicture:meta.profilePicture||""
   };
+  localStorage.setItem("rakibGamingUser",JSON.stringify(user));
+  sessionStorage.setItem("rakibGamingLoggedIn","true");
   showAppPage();
-  document.getElementById("userName").innerText=user.name;
-  document.getElementById("profileName").innerText=user.name;
-  document.getElementById("profileEmail").innerText=user.email;
+  const nameEl=document.getElementById("userName");
+  const profileName=document.getElementById("profileName");
+  const profileEmail=document.getElementById("profileEmail");
+  if(nameEl) nameEl.innerText=user.name;
+  if(profileName) profileName.innerText=user.name;
+  if(profileEmail) profileEmail.innerText=user.email;
   loadProfilePicture(user);
   return true;
 }
@@ -710,42 +735,32 @@ function closeProfile(){document.getElementById("profilePanel").classList.remove
 
 async function logout(){
   closeProfile();
-  try{
-    if(window.rakibSupabase){
-      const {error}=await window.rakibSupabase.auth.signOut({scope:"local"});
-      if(error) console.error("Logout error:",error);
-    }
-  }catch(e){console.error("Logout error:",e)}
+  const sb=initRakibSupabase();
+  try{ if(sb) await sb.auth.signOut({scope:"local"}); }catch(e){ console.error("Logout error:",e); }
   sessionStorage.removeItem("rakibGamingLoggedIn");
   localStorage.removeItem("rakibGamingLoggedIn");
   localStorage.removeItem("rakibGamingUser");
   showAuthPage();
   showLogin();
-  document.getElementById("loginPassword").value="";
+  const pw=document.getElementById("loginPassword");
+  if(pw) pw.value="";
 }
 
 function gameComingSoon(gameName){alert(gameName+" will be added in the next step!")}
 
 window.onload=async function(){
-  // Never use local flags to decide authentication. Supabase session is the source of truth.
   showAuthPage();
   showLogin();
   try{
-    if(!window.rakibSupabase) return;
-    const {data:{session},error}=await window.rakibSupabase.auth.getSession();
+    const sb=initRakibSupabase();
+    if(!sb) return;
+    const {data,error}=await sb.auth.getSession();
     if(error) throw error;
-    if(session && session.user){
-      sessionStorage.setItem("rakibGamingLoggedIn","true");
+    if(data && data.session && data.session.user){
       await loadDashboard();
-    }else{
-      sessionStorage.removeItem("rakibGamingLoggedIn");
-      localStorage.removeItem("rakibGamingLoggedIn");
-      showAuthPage();
     }
   }catch(e){
     console.error("Session check failed:",e);
-    sessionStorage.removeItem("rakibGamingLoggedIn");
-    localStorage.removeItem("rakibGamingLoggedIn");
     showAuthPage();
   }
 };
@@ -1529,20 +1544,6 @@ document.addEventListener("DOMContentLoaded",function(){
 });
 window.addEventListener("resize",()=>{const s=document.getElementById("bubbleGameScreen");if(s&&s.classList.contains("active"))resizeBubbleCanvas()});
 </script>
-<script>const RAKIB_SUPABASE_URL="https://hqgbhzuvyknrkzpmeytn.supabase.co";const RAKIB_SUPABASE_KEY="sb_publishable_KSOwOnl7GHqwGyZ25oz-lQ_JTPIta6k";window.rakibSupabase=(window.supabase&&typeof window.supabase.createClient==="function")?window.supabase.createClient(RAKIB_SUPABASE_URL,RAKIB_SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}):null;
-if(window.rakibSupabase){
-  window.rakibSupabase.auth.onAuthStateChange((event,session)=>{
-    if(event==="SIGNED_OUT"){
-      sessionStorage.removeItem("rakibGamingLoggedIn");
-      localStorage.removeItem("rakibGamingLoggedIn");
-      showAuthPage();
-      showLogin();
-    }else if(event==="SIGNED_IN" && session){
-      sessionStorage.setItem("rakibGamingLoggedIn","true");
-      setTimeout(()=>loadDashboard(),0);
-    }
-  });
-}
-</script>
+
 </body>
 </html>
