@@ -571,118 +571,155 @@ html,body{width:100%;min-height:100%;overflow-x:hidden}
 </aside>
 
 <script>
-function showLogin(){document.getElementById("loginForm").style.display="block";document.getElementById("signupForm").style.display="none"}
-function showSignup(){document.getElementById("loginForm").style.display="none";document.getElementById("signupForm").style.display="block"}
+function showAuthPage(){
+  const auth=document.getElementById("authPage");
+  const dash=document.getElementById("dashboard");
+  if(auth) auth.style.display="flex";
+  if(dash) dash.style.display="none";
+  document.querySelectorAll(".game-screen,.mini-game-screen").forEach(el=>el.classList.remove("active"));
+  document.body.style.overflow="";
+}
+
+function showAppPage(){
+  const auth=document.getElementById("authPage");
+  const dash=document.getElementById("dashboard");
+  if(auth) auth.style.display="none";
+  if(dash) dash.style.display="block";
+}
+
+function showLogin(){
+  document.getElementById("loginForm").style.display="block";
+  document.getElementById("signupForm").style.display="none";
+}
+function showSignup(){
+  document.getElementById("loginForm").style.display="none";
+  document.getElementById("signupForm").style.display="block";
+}
 
 async function signup(){
- const name=document.getElementById("signupName").value.trim();
- const email=document.getElementById("signupEmail").value.trim();
- const password=document.getElementById("signupPassword").value;
- const message=document.getElementById("signupMessage");
- const button=document.querySelector('#signupForm .main-btn');
+  const name=document.getElementById("signupName").value.trim();
+  const email=document.getElementById("signupEmail").value.trim();
+  const password=document.getElementById("signupPassword").value;
+  const message=document.getElementById("signupMessage");
+  const button=document.querySelector('#signupForm .main-btn');
 
- if(!name||!email||!password){message.className="message error";message.innerText="Please fill all fields.";return}
- if(password.length<6){message.className="message error";message.innerText="Password must be at least 6 characters.";return}
- if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){message.className="message error";message.innerText="Please enter a valid email.";return}
- if(!window.supabase||!rakibSupabase){
-   message.className="message error";
-   message.innerText="Connection not ready. Please refresh the website.";
-   return;
- }
+  if(!name||!email||!password){message.className="message error";message.innerText="Please fill all fields.";return}
+  if(password.length<6){message.className="message error";message.innerText="Password must be at least 6 characters.";return}
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){message.className="message error";message.innerText="Please enter a valid email.";return}
+  if(!window.rakibSupabase){message.className="message error";message.innerText="Connection not ready. Please refresh the website.";return}
 
- message.className="message";message.innerText="Creating account...";
- if(button){button.disabled=true;button.style.opacity=".65"}
+  message.className="message";message.innerText="Creating account...";
+  if(button){button.disabled=true;button.style.opacity=".65"}
+  try{
+    const {data,error}=await Promise.race([
+      window.rakibSupabase.auth.signUp({
+        email:email,
+        password:password,
+        options:{data:{name:name,profilePicture:""}}
+      }),
+      new Promise((_,reject)=>setTimeout(()=>reject(new Error("Connection timed out. Please check your internet and try again.")),15000))
+    ]);
+    if(error) throw error;
 
- try{
-   const result=await Promise.race([
-     window.rakibSupabase.auth.signUp({
-       email:email,
-       password:password,
-       options:{data:{name:name,profilePicture:""}}
-     }),
-     new Promise((_,reject)=>setTimeout(()=>reject(new Error("Connection timed out. Please check your internet and try again.")),15000))
-   ]);
-
-   const {data,error}=result;
-   if(error) throw error;
-
-   if(data.session){
-     message.className="message success";
-     message.innerText="Account created successfully!";
-     setTimeout(()=>{
-       showLogin();
-       document.getElementById("loginEmail").value=email;
-       document.getElementById("loginPassword").value="";
-     },800);
-   }else{
-     message.className="message success";
-     message.innerText="Account created! You can now login.";
-     setTimeout(()=>{
-       showLogin();
-       document.getElementById("loginEmail").value=email;
-     },1000);
-   }
- }catch(err){
-   console.error("Signup error:",err);
-   message.className="message error";
-   const msg=(err&&err.message)||"Could not create account.";
-   message.innerText=msg;
- }finally{
-   if(button){button.disabled=false;button.style.opacity="1"}
- }
+    message.className="message success";
+    if(data && data.session){
+      message.innerText="Account created successfully!";
+      await loadDashboard();
+    }else{
+      message.innerText="Account created! You can now login.";
+      setTimeout(()=>{
+        showLogin();
+        document.getElementById("loginEmail").value=email;
+        document.getElementById("loginPassword").value="";
+      },700);
+    }
+  }catch(err){
+    console.error("Signup error:",err);
+    message.className="message error";
+    message.innerText=(err&&err.message)||"Could not create account.";
+  }finally{
+    if(button){button.disabled=false;button.style.opacity="1"}
+  }
 }
 
 async function login(){
-const email=document.getElementById("loginEmail").value.trim(),password=document.getElementById("loginPassword").value,message=document.getElementById("loginMessage");
-if(!email||!password){message.className="message error";message.innerText="Please enter email and password.";return}
-message.className="message";message.innerText="Logging in...";
-const {error}=await window.rakibSupabase.auth.signInWithPassword({email,password});
-if(error){message.className="message error";message.innerText="Incorrect email or password.";return}
-sessionStorage.setItem("rakibGamingLoggedIn","true");loadDashboard();
+  const email=document.getElementById("loginEmail").value.trim();
+  const password=document.getElementById("loginPassword").value;
+  const message=document.getElementById("loginMessage");
+  const button=document.querySelector('#loginForm .main-btn');
+  if(!email||!password){message.className="message error";message.innerText="Please enter email and password.";return}
+  if(!window.rakibSupabase){message.className="message error";message.innerText="Connection not ready. Please refresh the website.";return}
+  message.className="message";message.innerText="Logging in...";
+  if(button){button.disabled=true;button.style.opacity=".65"}
+  try{
+    const {data,error}=await window.rakibSupabase.auth.signInWithPassword({email,password});
+    if(error) throw error;
+    if(!data.session) throw new Error("Login session was not created. Please try again.");
+    await loadDashboard();
+    message.className="message";message.innerText="";
+  }catch(err){
+    console.error("Login error:",err);
+    message.className="message error";
+    message.innerText=(err&&err.message)||"Incorrect email or password.";
+  }finally{
+    if(button){button.disabled=false;button.style.opacity="1"}
+  }
 }
 
 async function loadDashboard(){
-const {data:{user:authUser}}=await window.rakibSupabase.auth.getUser();if(!authUser)return;const meta=authUser.user_metadata||{};const user={name:meta.name||authUser.email?.split("@")[0]||"Player",email:authUser.email||"",profilePicture:meta.profilePicture||""};
-document.getElementById("authPage").style.display="none";
-document.getElementById("dashboard").style.display="block";
-document.getElementById("userName").innerText=user.name;
-document.getElementById("profileName").innerText=user.name;
-document.getElementById("profileEmail").innerText=user.email;
-loadProfilePicture(user)
+  if(!window.rakibSupabase)return false;
+  const {data:{session},error:sessionError}=await window.rakibSupabase.auth.getSession();
+  if(sessionError||!session||!session.user)return false;
+  const authUser=session.user;
+  const meta=authUser.user_metadata||{};
+  const user={
+    name:meta.name||authUser.email?.split("@")[0]||"Player",
+    email:authUser.email||"",
+    profilePicture:meta.profilePicture||""
+  };
+  showAppPage();
+  document.getElementById("userName").innerText=user.name;
+  document.getElementById("profileName").innerText=user.name;
+  document.getElementById("profileEmail").innerText=user.email;
+  loadProfilePicture(user);
+  return true;
 }
 
 function changeProfilePicture(event){
-const file=event.target.files[0];if(!file)return;
-if(!file.type.startsWith("image/")){alert("Please select an image file.");return}
-if(file.size>3*1024*1024){alert("Image size must be less than 3MB.");return}
-const reader=new FileReader();
-reader.onload=function(e){
-const user=JSON.parse(localStorage.getItem("rakibGamingUser"));if(!user)return;
-user.profilePicture=e.target.result;
-localStorage.setItem("rakibGamingUser",JSON.stringify(user));
-loadProfilePicture(user)
-};
-reader.readAsDataURL(file)
+  const file=event.target.files[0];if(!file)return;
+  if(!file.type.startsWith("image/")){alert("Please select an image file.");return}
+  if(file.size>3*1024*1024){alert("Image size must be less than 3MB.");return}
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const user=JSON.parse(localStorage.getItem("rakibGamingUser")||"null");if(!user)return;
+    user.profilePicture=e.target.result;
+    localStorage.setItem("rakibGamingUser",JSON.stringify(user));
+    loadProfilePicture(user);
+  };
+  reader.readAsDataURL(file)
 }
 
 function loadProfilePicture(user){
-const bigAvatar=document.getElementById("bigAvatar");
-if(user.profilePicture){bigAvatar.innerHTML=`<img src="${user.profilePicture}" alt="Profile Picture">`}
-else{bigAvatar.innerHTML="👤"}
+  const bigAvatar=document.getElementById("bigAvatar");
+  if(user.profilePicture){bigAvatar.innerHTML=`<img src="${user.profilePicture}" alt="Profile Picture">`}
+  else{bigAvatar.innerHTML="👤"}
 }
 
 function openProfile(){document.getElementById("profilePanel").classList.add("active")}
 function closeProfile(){document.getElementById("profilePanel").classList.remove("active")}
 
 async function logout(){
+  closeProfile();
   try{
-    if(window.rakibSupabase) await window.window.rakibSupabase.auth.signOut({scope:"local"});
-  }catch(e){ console.error("Logout error:",e); }
+    if(window.rakibSupabase){
+      const {error}=await window.rakibSupabase.auth.signOut({scope:"local"});
+      if(error) console.error("Logout error:",error);
+    }
+  }catch(e){console.error("Logout error:",e)}
   sessionStorage.removeItem("rakibGamingLoggedIn");
   localStorage.removeItem("rakibGamingLoggedIn");
-  const app=document.getElementById("appPage"), auth=document.getElementById("authPage");
-  if(app) app.style.display="none";
-  if(auth) auth.style.display="flex";
+  localStorage.removeItem("rakibGamingUser");
+  showAuthPage();
   showLogin();
   document.getElementById("loginPassword").value="";
 }
@@ -690,25 +727,29 @@ async function logout(){
 function gameComingSoon(gameName){alert(gameName+" will be added in the next step!")}
 
 window.onload=async function(){
+  // Never use local flags to decide authentication. Supabase session is the source of truth.
+  showAuthPage();
+  showLogin();
   try{
-    const {data:{session}}=await window.window.rakibSupabase.auth.getSession();
-    if(session){
+    if(!window.rakibSupabase) return;
+    const {data:{session},error}=await window.rakibSupabase.auth.getSession();
+    if(error) throw error;
+    if(session && session.user){
       sessionStorage.setItem("rakibGamingLoggedIn","true");
       await loadDashboard();
     }else{
       sessionStorage.removeItem("rakibGamingLoggedIn");
       localStorage.removeItem("rakibGamingLoggedIn");
-      document.getElementById("appPage").style.display="none";
-      document.getElementById("authPage").style.display="flex";
-      showLogin();
+      showAuthPage();
     }
   }catch(e){
     console.error("Session check failed:",e);
-    document.getElementById("appPage").style.display="none";
-    document.getElementById("authPage").style.display="flex";
-    showLogin();
+    sessionStorage.removeItem("rakibGamingLoggedIn");
+    localStorage.removeItem("rakibGamingLoggedIn");
+    showAuthPage();
   }
-}
+};
+
 function tone(freq,duration,type="sine",volume=.55,slide=0){
     const ctx=ensureGameAudio(); if(!ctx)return;
     const o=ctx.createOscillator(),g=ctx.createGain(),now=ctx.currentTime;
@@ -1488,6 +1529,20 @@ document.addEventListener("DOMContentLoaded",function(){
 });
 window.addEventListener("resize",()=>{const s=document.getElementById("bubbleGameScreen");if(s&&s.classList.contains("active"))resizeBubbleCanvas()});
 </script>
-<script>const RAKIB_SUPABASE_URL="https://hqgbhzuvyknrkzpmeytn.supabase.co";const RAKIB_SUPABASE_KEY="sb_publishable_KSOwOnl7GHqwGyZ25oz-lQ_JTPIta6k";window.rakibSupabase=window.supabase?window.supabase.createClient(RAKIB_SUPABASE_URL,RAKIB_SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}):null;</script>
+<script>const RAKIB_SUPABASE_URL="https://hqgbhzuvyknrkzpmeytn.supabase.co";const RAKIB_SUPABASE_KEY="sb_publishable_KSOwOnl7GHqwGyZ25oz-lQ_JTPIta6k";window.rakibSupabase=(window.supabase&&typeof window.supabase.createClient==="function")?window.supabase.createClient(RAKIB_SUPABASE_URL,RAKIB_SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}):null;
+if(window.rakibSupabase){
+  window.rakibSupabase.auth.onAuthStateChange((event,session)=>{
+    if(event==="SIGNED_OUT"){
+      sessionStorage.removeItem("rakibGamingLoggedIn");
+      localStorage.removeItem("rakibGamingLoggedIn");
+      showAuthPage();
+      showLogin();
+    }else if(event==="SIGNED_IN" && session){
+      sessionStorage.setItem("rakibGamingLoggedIn","true");
+      setTimeout(()=>loadDashboard(),0);
+    }
+  });
+}
+</script>
 </body>
 </html>
