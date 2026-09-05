@@ -372,6 +372,19 @@ html,body{width:100%;min-height:100%;overflow-x:hidden}
 #dashboard{display:none !important}
 #authPage.app-hidden{display:none !important}
 #dashboard.app-visible{display:block !important}
+
+/* ===== NEW GAME ENGINE UI ===== */
+.rg-game{background:#050505!important;z-index:300!important}
+.rg-topbar{position:sticky!important;top:0!important;z-index:20!important}
+.rg-game-body{width:min(94vw,760px);margin:0 auto;padding:14px 0 35px}
+.rg-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.rg-stats>div{background:#101010;border:1px solid #3d0000;border-radius:16px;text-align:center;padding:10px}.rg-stats small{display:block;color:#888;font-size:12px}.rg-stats b{display:block;font-size:25px;margin-top:3px}
+.rg-speed{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:12px}.rg-speed span{grid-column:1/-1;text-align:center;color:#999;text-transform:uppercase;font-size:12px}.rg-speed button,.rg-actions button{border:1px solid #470000;background:#160000;color:#fff;border-radius:12px;padding:11px;font-weight:700;font-size:14px}.rg-speed button.active{border-color:#ff2020;background:#310000;color:#ff4040}
+.rg-canvas-box{position:relative;width:100%;height:min(62vw,560px);min-height:300px;border:3px solid #ff2020;border-radius:20px;overflow:hidden;background:#061006;box-shadow:0 0 25px rgba(255,0,0,.16)}
+.rg-canvas-box canvas{display:block;width:100%;height:100%;touch-action:none}.jump-box{height:min(62vw,520px);min-height:330px;border-color:#1f7d9e;background:#09121a}.bubble-box{height:min(68vw,560px);min-height:350px;border-color:#1d608d;background:#03070b}
+.rg-overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.72);z-index:10}.rg-overlay.show{display:flex}.rg-overlay>div{width:min(84%,340px);padding:24px;text-align:center;background:#101010;border:1px solid #660000;border-radius:18px}.rg-overlay h2{color:#ff3030;margin:5px 0 9px}.rg-overlay p{color:#bbb;font-size:13px;line-height:1.45;margin-bottom:16px}.rg-overlay button{border:1px solid #ff2020;background:#700000;color:#fff;border-radius:12px;padding:12px 20px;font-weight:800;font-size:15px}
+.rg-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}.rg-actions button:active{transform:scale(.97)}.rg-actions .jump-main{background:#650000;border-color:#ff3030;font-size:17px}.snake-controls{display:grid!important;grid-template-columns:repeat(3,58px)!important;grid-template-rows:58px 58px 58px!important;gap:7px!important;width:max-content!important;margin:12px auto!important}.snake-controls button{border:1px solid #4b0000;background:#180000;color:#fff;border-radius:14px;font-size:23px}.snake-controls button:nth-child(1){grid-column:2}.snake-controls button:nth-child(2){grid-column:1;grid-row:2}.snake-controls button:nth-child(3){grid-column:2;grid-row:3}.snake-controls button:nth-child(4){grid-column:3;grid-row:2}.rg-help{text-align:center;color:#777;font-size:11px;margin-top:10px}.rg-puzzle{width:min(92vw,560px)!important;height:auto!important;aspect-ratio:1/1!important;margin:5px auto 10px!important;display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:7px!important;padding:7px!important;background:#101010!important;border:2px solid #570000!important;border-radius:18px!important}.rg-puzzle .puzzle-tile{border:1px solid #7b0000!important;border-radius:12px!important;background:linear-gradient(145deg,#ff2020,#7d0000)!important;color:#fff!important;font-size:clamp(20px,6vw,34px)!important;font-weight:800!important;display:flex!important;align-items:center!important;justify-content:center!important}.rg-puzzle .puzzle-tile.empty{background:#050505!important;border-color:#250000!important}.puzzle-message{text-align:center;color:#aaa;margin:7px 0 12px}.bubble-hud{display:grid;grid-template-columns:1fr .55fr 1fr;gap:7px;align-items:center;margin-bottom:10px}.bubble-hud>div{background:#101010;border:1px solid #2a4050;border-radius:12px;padding:7px;text-align:center}.bubble-hud span{display:block;font-size:10px;color:#bbb}.bubble-hud b{font-size:12px}.bubble-hud i{display:block;height:7px;background:#222;border-radius:10px;overflow:hidden;margin:5px 0}.bubble-hud em{display:block;height:100%;width:100%;background:#ff304c}.bubble-hud>div:nth-child(3) em{background:#3198ff}.bubble-hud strong{font-size:22px}.mini-topbar .mini-title{white-space:nowrap}
+@media(max-width:600px){.rg-game-body{width:94vw}.rg-canvas-box{height:92vw;min-height:300px}.jump-box{height:92vw;min-height:330px}.bubble-box{height:100vw;min-height:360px}.rg-actions button{padding:12px 8px}.snake-controls{grid-template-columns:52px 52px 52px!important;grid-template-rows:52px 52px 52px!important}.rg-puzzle{gap:5px;padding:5px!important}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>if(!window.supabase){document.write('<script src="https://unpkg.com/@supabase/supabase-js@2"><\\/script>')}</script>
@@ -441,135 +454,53 @@ initRakibSupabase();
 
 
 <!-- =====================================================
-     SNAKE GAME SCREEN
+     NEW 2D GAME SCREENS
 ===================================================== -->
-<section class="game-screen" id="snakeGameScreen">
-    <header class="snake-topbar">
-        <div class="snake-title">🐍 Snake Game</div>
-        <button class="sound-btn" id="snakeSoundBtn" onclick="toggleGameSound()">🔊 ON</button>
-        <button class="snake-back" onclick="closeSnakeGame()">← Back</button>
-    </header>
-
-    <div class="game-intro" id="snakeIntro"><div class="game-intro-box"><div class="game-intro-title">RAKIB GAMING 8.0</div><div class="game-intro-sub">SNAKE GAME</div></div></div>
-    <div class="snake-wrap">
-        <div class="snake-stats">
-            <div class="snake-stat">
-                <small>SCORE</small>
-                <strong id="snakeScore">0</strong>
-            </div>
-            <div class="snake-stat">
-                <small>BEST</small>
-                <strong id="snakeBest">0</strong>
-            </div>
-        </div>
-
-        <div class="snake-speed-row">
-            <span class="snake-speed-label">Snake Speed</span>
-            <div class="snake-speed-options">
-                <button class="snake-speed" id="snakeSpeedSlow" onclick="setSnakeSpeed('slow')">🐢 Slow</button>
-                <button class="snake-speed active" id="snakeSpeedNormal" onclick="setSnakeSpeed('normal')">⚡ Normal</button>
-                <button class="snake-speed" id="snakeSpeedFast" onclick="setSnakeSpeed('fast')">🔥 Fast</button>
-            </div>
-        </div>
-
-        <div class="snake-board-wrap">
-            <canvas id="snakeCanvas" class="snake-board"></canvas>
-
-            <div class="snake-overlay show" id="snakeOverlay">
-                <div class="snake-overlay-box">
-                    <h2 id="snakeOverlayTitle">Snake Game</h2>
-                    <p id="snakeOverlayText">Eat the food, grow longer and don't hit the wall or yourself.</p>
-                    <button class="snake-start" id="snakeStartButton" onclick="startSnakeGame()">START GAME</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="snake-actions">
-            <button class="snake-action" onclick="toggleSnakePause()" id="snakePauseBtn">⏸ Pause</button>
-            <button class="snake-action" onclick="restartSnakeGame()">↻ Restart</button>
-        </div>
-
-        <div class="snake-controls">
-            <button class="snake-dir up" onclick="changeSnakeDirection('up')">▲</button>
-            <button class="snake-dir left" onclick="changeSnakeDirection('left')">◀</button>
-            <button class="snake-dir down" onclick="changeSnakeDirection('down')">▼</button>
-            <button class="snake-dir right" onclick="changeSnakeDirection('right')">▶</button>
-        </div>
-
-        <div class="snake-help">
-            Mobile: swipe on the game board or use the buttons.<br>
-            Keyboard: use Arrow Keys.
-        </div>
-    </div>
+<section class="game-screen rg-game" id="snakeGameScreen">
+  <header class="snake-topbar rg-topbar">
+    <div class="snake-title">🐍 Snake Game</div>
+    <button class="sound-btn" onclick="toggleGameSound()">🔊 ON</button>
+    <button class="snake-back" onclick="closeSnakeGame()">← Back</button>
+  </header>
+  <div class="rg-game-body">
+    <div class="rg-stats"><div><small>SCORE</small><b id="snakeScore">0</b></div><div><small>BEST</small><b id="snakeBest">0</b></div></div>
+    <div class="rg-speed"><span>Snake Speed</span><button id="snakeSpeedSlow" onclick="setSnakeSpeed('slow')">🐢 Slow</button><button id="snakeSpeedNormal" class="active" onclick="setSnakeSpeed('normal')">⚡ Normal</button><button id="snakeSpeedFast" onclick="setSnakeSpeed('fast')">🔥 Fast</button></div>
+    <div class="rg-canvas-box"><canvas id="snakeCanvas"></canvas><div class="rg-overlay show" id="snakeOverlay"><div><h2 id="snakeOverlayTitle">2D Snake</h2><p id="snakeOverlayText">Eat the red food and grow longer.</p><button onclick="startSnakeGame()">START GAME</button></div></div></div>
+    <div class="rg-actions"><button onclick="toggleSnakePause()" id="snakePauseBtn">⏸ Pause</button><button onclick="restartSnakeGame()">↻ Restart</button></div>
+    <div class="snake-controls"><button onclick="changeSnakeDirection('up')">▲</button><button onclick="changeSnakeDirection('left')">◀</button><button onclick="changeSnakeDirection('down')">▼</button><button onclick="changeSnakeDirection('right')">▶</button></div>
+    <p class="rg-help">Swipe the board or use Arrow Keys / buttons.</p>
+  </div>
 </section>
 
-
-<!-- PUZZLE GAME -->
-<section class="mini-game-screen" id="puzzleGameScreen">
-<header class="mini-topbar"><div class="mini-title">🧩 Puzzle Solving</div><button class="sound-btn" id="puzzleSoundBtn" onclick="toggleGameSound()">🔊 ON</button><button class="mini-back" onclick="closePuzzleGame()">← Back</button></header>
-<div class="game-intro" id="puzzleIntro"><div class="game-intro-box"><div class="game-intro-title">RAKIB GAMING 8.0</div><div class="game-intro-sub">PUZZLE GAME</div></div></div>
-<div class="mini-wrap">
-  <div class="mini-stats">
-    <div class="mini-stat"><small>MOVES</small><strong id="puzzleMoves">0</strong></div>
-    <div class="mini-stat"><small>BEST</small><strong id="puzzleBest">-</strong></div>
+<section class="mini-game-screen rg-game" id="puzzleGameScreen">
+  <header class="mini-topbar rg-topbar"><div class="mini-title">🧩 Puzzle Solving</div><button class="sound-btn" onclick="toggleGameSound()">🔊 ON</button><button class="mini-back" onclick="closePuzzleGame()">← Back</button></header>
+  <div class="rg-game-body">
+    <div class="rg-stats"><div><small>MOVES</small><b id="puzzleMoves">0</b></div><div><small>BEST</small><b id="puzzleBest">-</b></div></div>
+    <div class="puzzle-board rg-puzzle" id="puzzleBoard"></div>
+    <p class="puzzle-message" id="puzzleMessage">Arrange 1–15 in order.</p>
+    <div class="rg-actions"><button onclick="shufflePuzzle()">🔀 Shuffle</button><button onclick="resetPuzzle()">↻ Reset</button></div>
+    <p class="rg-help">Tap a tile next to the empty space.</p>
   </div>
-  <div class="puzzle-board" id="puzzleBoard"></div>
-  <div class="puzzle-message" id="puzzleMessage">Arrange 1–15 in order.</div>
-  <div class="mini-actions">
-    <button class="mini-action" onclick="shufflePuzzle()">🔀 Shuffle</button>
-    <button class="mini-action" onclick="resetPuzzle()">↻ Reset</button>
-  </div>
-  <div class="mini-help">Tap a tile beside the empty space to move it.</div>
-</div>
 </section>
 
-<!-- JUMPING GAME -->
-<section class="mini-game-screen" id="jumpGameScreen">
-<header class="mini-topbar"><div class="mini-title">🏃 Jumping Game</div><button class="sound-btn" id="jumpSoundBtn" onclick="toggleGameSound()">🔊 ON</button><button class="mini-back" onclick="closeJumpGame()">← Back</button></header>
-<div class="game-intro" id="jumpIntro"><div class="game-intro-box"><div class="game-intro-title">RAKIB GAMING 8.0</div><div class="game-intro-sub">JUMPING GAME</div></div></div>
-<div class="mini-wrap">
-  <div class="mini-stats">
-    <div class="mini-stat"><small>SCORE</small><strong id="jumpScore">0</strong></div>
-    <div class="mini-stat"><small>BEST</small><strong id="jumpBest">0</strong></div>
+<section class="mini-game-screen rg-game" id="jumpGameScreen">
+  <header class="mini-topbar rg-topbar"><div class="mini-title">🏃 2D Jumping Game</div><button class="sound-btn" onclick="toggleGameSound()">🔊 ON</button><button class="mini-back" onclick="closeJumpGame()">← Back</button></header>
+  <div class="rg-game-body">
+    <div class="rg-stats"><div><small>SCORE</small><b id="jumpScore">0</b></div><div><small>BEST</small><b id="jumpBest">0</b></div></div>
+    <div class="rg-canvas-box jump-box"><canvas id="jumpCanvas"></canvas><div class="rg-overlay show" id="jumpOverlay"><div><h2 id="jumpOverlayTitle">2D Jumping</h2><p id="jumpOverlayText">Jump over the blocks.</p><button onclick="startJumpGame()">START GAME</button></div></div></div>
+    <div class="rg-actions"><button class="jump-main" onclick="jumpAction()">⬆ JUMP</button><button onclick="restartJumpGame()">↻ Restart</button></div>
+    <p class="rg-help">Tap JUMP or press Space / Arrow Up.</p>
   </div>
-  <div class="jump-wrap">
-    <canvas id="jumpCanvas" class="mini-canvas jump-canvas"></canvas>
-    <div class="game-overlay show" id="jumpOverlay">
-      <div class="game-overlay-box"><h2 id="jumpOverlayTitle">Jumping Game</h2><p id="jumpOverlayText">Jump over obstacles and survive as long as possible.</p><button class="game-start" id="jumpStartButton" onclick="startJumpGame()">START GAME</button></div>
-    </div>
-  </div>
-  <div class="jump-controls"><button class="jump-btn" onclick="jumpAction()">⬆ JUMP</button><button class="mini-action" onclick="restartJumpGame()">↻ RESTART</button></div>
-  <div class="mini-help">Tap JUMP or press Space/Arrow Up to jump.</div>
-</div>
 </section>
 
-<!-- BUBBLE SHOOTING -->
-<section class="mini-game-screen" id="bubbleGameScreen">
-<header class="mini-topbar"><div class="mini-title">🫧 Bubble Battle</div><button class="sound-btn" id="bubbleSoundBtn" onclick="toggleGameSound()">🔊 ON</button><button class="mini-back" onclick="closeBubbleGame()">← Back</button></header>
-<div class="game-intro" id="bubbleIntro"><div class="game-intro-box"><div class="game-intro-title">RAKIB GAMING 8.0</div><div class="game-intro-sub">BUBBLE BATTLE</div></div></div>
-<div class="mini-wrap bubble-battle-wrap">
-  <div class="bubble-hud">
-    <div class="bubble-hp"><span>🤖 BOT</span><div><i id="botHpBar"></i></div><b id="botHpText">100</b></div>
-    <div class="bubble-score"><small>SCORE</small><strong id="bubbleScore">0</strong></div>
-    <div class="bubble-hp player"><span>🧑 YOU</span><div><i id="playerHpBar"></i></div><b id="playerHpText">100</b></div>
+<section class="mini-game-screen rg-game" id="bubbleGameScreen">
+  <header class="mini-topbar rg-topbar"><div class="mini-title">🫧 Bubble Shooting</div><button class="sound-btn" onclick="toggleGameSound()">🔊 ON</button><button class="mini-back" onclick="closeBubbleGame()">← Back</button></header>
+  <div class="rg-game-body">
+    <div class="bubble-hud"><div><span>🤖 BOT</span><i><em id="botHpBar"></em></i><b id="botHpText">100</b></div><div><small>SCORE</small><strong id="bubbleScore">0</strong></div><div><span>🧑 YOU</span><i><em id="playerHpBar"></em></i><b id="playerHpText">100</b></div></div>
+    <div class="rg-canvas-box bubble-box"><canvas id="bubbleCanvas"></canvas><div class="rg-overlay show" id="bubbleOverlay"><div><div style="font-size:42px">🫧</div><h2 id="bubbleOverlayTitle">Bubble Battle</h2><p id="bubbleOverlayText">Shoot the bot. Every hit = 5 HP damage.</p><button onclick="startBubbleGame()">START BATTLE</button></div></div></div>
+    <div class="rg-actions"><button id="bubbleFireBtn" class="jump-main">🫧 FIRE</button><button onclick="restartBubbleGame()">↻ Restart</button></div>
+    <p class="rg-help">Drag/tap the arena to aim. You shoot the bot; the bot shoots you. 1 hit = 5 HP.</p>
   </div>
-  <div class="bubble-wrap bubble-battle-arena">
-    <canvas id="bubbleCanvas" class="mini-canvas bubble-canvas"></canvas>
-    <div class="game-overlay show" id="bubbleOverlay">
-      <div class="game-overlay-box">
-        <div class="battle-icon">🫧</div>
-        <h2 id="bubbleOverlayTitle">Bubble Battle</h2>
-        <p id="bubbleOverlayText">Defeat the bot. Aim your Bubble Gun and hit the bot before it hits you.</p>
-        <button class="game-start" id="bubbleStartButton" onclick="startBubbleGame()">START BATTLE</button>
-      </div>
-    </div>
-  </div>
-  <div class="bubble-controls">
-    <button class="bubble-control" id="bubbleFireBtn">🫧 FIRE</button>
-    <div class="bubble-aim">Drag/tap arena to aim • Fire to shoot</div>
-    <button class="bubble-control" onclick="restartBubbleGame()">↻ RESTART</button>
-  </div>
-</div>
 </section>
 
 <aside class="profile-panel" id="profilePanel">
@@ -812,806 +743,93 @@ function playGameIntro(id,sub,after){
 }
 
 /* =====================================================
-   SNAKE GAME
+   NEW 2D GAMES — self contained
 ===================================================== */
-let snakeCanvas;
-let snakeCtx;
-let snakeCells = 18;
-let snakeSize = 0;
-let snakeBody = [];
-let snakeFood = {x: 5, y: 5};
-let snakeDirection = {x: 1, y: 0};
-let snakeNextDirection = {x: 1, y: 0};
-let snakeTimer = null;
-let snakeRunning = false;
-let snakePaused = false;
-let snakeScore = 0;
-let snakeBest = Number(localStorage.getItem("rakibSnakeBest") || 0);
-let snakeSpeed = localStorage.getItem("rakibSnakeSpeed") || "normal";
-const snakeSpeedMs = {slow: 180, normal: 115, fast: 65};
-let snakeTouchStartX = 0;
-let snakeTouchStartY = 0;
+function rgSound(k){try{if(typeof playGameSound==='function')playGameSound(k)}catch(e){}}
 
+/* ---------------- 2D SNAKE ---------------- */
+let snakeCanvas=null,snakeCtx=null,snakeCells=20,snakeBody=[],snakeFood={x:5,y:5};
+let snakeDirection={x:1,y:0},snakeNextDirection={x:1,y:0},snakeTimer=null,snakeRunning=false,snakePaused=false;
+let snakeScore=0,snakeBest=Number(localStorage.getItem('rakibSnakeBest')||0),snakeSpeed=localStorage.getItem('rakibSnakeSpeed')||'normal';
+const snakeSpeedMs={slow:190,normal:120,fast:72};
 function openSnakeGame(){
-    const screen=document.getElementById("snakeGameScreen");
-    if(!screen)return;
-    screen.classList.add("active");
-    document.body.style.overflow = "hidden";
-    ensureGameAudio();updateSoundButtons();updateSnakeSpeedButtons();
-    // Wait one frame so the active game screen has a real size on mobile.
-    requestAnimationFrame(()=>{
-        setupSnakeCanvas();
-        resetSnake();
-    });
-    document.getElementById("snakeBest").innerText = snakeBest;
-    document.getElementById("snakeOverlay").classList.remove("show");
-    playGameIntro("snakeIntro","SNAKE GAME",()=>showSnakeOverlay("Snake Game", "Eat the food, grow longer and don't hit the wall or yourself.", "START GAME"));
+ const s=document.getElementById('snakeGameScreen'); if(!s)return; s.classList.add('active'); document.body.style.overflow='hidden';
+ snakeCanvas=document.getElementById('snakeCanvas'); resizeSnakeCanvas(); updateSnakeSpeedButtons();
+ document.getElementById('snakeBest').innerText=snakeBest; showSnakeOverlay('2D Snake','Eat the red food and grow longer.','START GAME');
 }
-
-function closeSnakeGame(){
-    stopSnakeLoop();
-    snakeRunning = false;
-    snakePaused = false;
-    document.getElementById("snakeGameScreen").classList.remove("active");
-    document.body.style.overflow = "";
-}
-
-function setupSnakeCanvas(){
-    snakeCanvas = document.getElementById("snakeCanvas");
-    if(!snakeCanvas) return;
-    const rect = snakeCanvas.getBoundingClientRect();
-    const cssW = Math.max(280, Math.floor(rect.width || snakeCanvas.clientWidth || 300));
-    const cssH = Math.max(280, Math.floor(rect.height || cssW));
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    snakeCanvas.width = Math.floor(cssW * dpr);
-    snakeCanvas.height = Math.floor(cssH * dpr);
-    snakeCtx = snakeCanvas.getContext("2d");
-    snakeSize = snakeCanvas.width / snakeCells;
-    drawSnake();
-}
-
-function resetSnake(){
-    stopSnakeLoop();
-    snakeScore = 0;
-    document.getElementById("snakeScore").innerText = "0";
-    document.getElementById("snakeBest").innerText = snakeBest;
-
-    snakeBody = [
-        {x:9,y:9},
-        {x:8,y:9},
-        {x:7,y:9},
-        {x:6,y:9}
-    ];
-
-    snakeDirection = {x:1,y:0};
-    snakeNextDirection = {x:1,y:0};
-    snakePaused = false;
-    document.getElementById("snakePauseBtn").innerText = "⏸ Pause";
-    placeSnakeFood();
-    drawSnake();
-}
-
-function startSnakeGame(){
-    resetSnake();
-    snakeRunning = true;
-    document.getElementById("snakeOverlay").classList.remove("show");
-    updateSnakeSpeedButtons();
-    snakeTimer = setInterval(snakeTick, snakeSpeedMs[snakeSpeed]);
-}
-
-function restartSnakeGame(){
-    startSnakeGame();
-}
-
-
-function setSnakeSpeed(speed){
-    if(!snakeSpeedMs[speed]) return;
-
-    snakeSpeed = speed;
-    localStorage.setItem("rakibSnakeSpeed", speed);
-    updateSnakeSpeedButtons();
-
-    if(snakeRunning && !snakePaused){
-        stopSnakeLoop();
-        snakeTimer = setInterval(snakeTick, snakeSpeedMs[snakeSpeed]);
-    }
-}
-
-function updateSnakeSpeedButtons(){
-    ["slow","normal","fast"].forEach(speed=>{
-        const id = "snakeSpeed" + speed.charAt(0).toUpperCase() + speed.slice(1);
-        const button = document.getElementById(id);
-        if(button) button.classList.toggle("active", snakeSpeed === speed);
-    });
-}
-
-function stopSnakeLoop(){
-    if(snakeTimer){
-        clearInterval(snakeTimer);
-        snakeTimer = null;
-    }
-}
-
-function toggleSnakePause(){
-    if(!snakeRunning) return;
-    snakePaused = !snakePaused;
-    document.getElementById("snakePauseBtn").innerText =
-        snakePaused ? "▶ Resume" : "⏸ Pause";
-}
-
-function changeSnakeDirection(dir){
-    if(!snakeRunning || snakePaused) return;
-
-    const opposites = {
-        up:"down",
-        down:"up",
-        left:"right",
-        right:"left"
-    };
-
-    const current =
-        snakeDirection.x === 1 ? "right" :
-        snakeDirection.x === -1 ? "left" :
-        snakeDirection.y === 1 ? "down" : "up";
-
-    if(opposites[current] === dir) return;
-
-    if(dir === "up") snakeNextDirection = {x:0,y:-1};
-    if(dir === "down") snakeNextDirection = {x:0,y:1};
-    if(dir === "left") snakeNextDirection = {x:-1,y:0};
-    if(dir === "right") snakeNextDirection = {x:1,y:0};
-}
-
-function snakeTick(){
-    if(!snakeRunning || snakePaused) return;
-
-    snakeDirection = {...snakeNextDirection};
-
-    const head = snakeBody[0];
-    const newHead = {
-        x: head.x + snakeDirection.x,
-        y: head.y + snakeDirection.y
-    };
-
-    if(
-        newHead.x < 0 ||
-        newHead.x >= snakeCells ||
-        newHead.y < 0 ||
-        newHead.y >= snakeCells
-    ){
-        snakeGameOver();
-        return;
-    }
-
-    const willEat =
-        newHead.x === snakeFood.x &&
-        newHead.y === snakeFood.y;
-
-    const bodyToCheck = willEat
-        ? snakeBody
-        : snakeBody.slice(0, -1);
-
-    if(bodyToCheck.some(part => part.x === newHead.x && part.y === newHead.y)){
-        snakeGameOver();
-        return;
-    }
-
-    snakeBody.unshift(newHead);
-
-    if(willEat){
-        snakeScore++;
-        document.getElementById("snakeScore").innerText = snakeScore;
-
-        if(snakeScore > snakeBest){
-            snakeBest = snakeScore;
-            localStorage.setItem("rakibSnakeBest", snakeBest);
-            document.getElementById("snakeBest").innerText = snakeBest;
-        }
-
-        placeSnakeFood();
-        playGameSound("eat");
-    }else{
-        snakeBody.pop();
-    }
-
-    drawSnake();
-}
-
-function placeSnakeFood(){
-    let valid = false;
-
-    while(!valid){
-        snakeFood = {
-            x: Math.floor(Math.random() * snakeCells),
-            y: Math.floor(Math.random() * snakeCells)
-        };
-
-        valid = !snakeBody.some(
-            part => part.x === snakeFood.x && part.y === snakeFood.y
-        );
-    }
-}
-
-function roundedRect(ctx,x,y,w,h,r){
-    const radius = Math.min(r,w/2,h/2);
-    ctx.beginPath();
-    ctx.moveTo(x+radius,y);
-    ctx.arcTo(x+w,y,x+w,y+h,radius);
-    ctx.arcTo(x+w,y+h,x,y+h,radius);
-    ctx.arcTo(x,y+h,x,y,radius);
-    ctx.arcTo(x,y,x+w,y,radius);
-    ctx.closePath();
-}
-
-function drawSnake(){
-    if(!snakeCtx || !snakeCanvas) return;
-
-    const w = snakeCanvas.width;
-    const h = snakeCanvas.height;
-    const cell = w / snakeCells;
-
-    snakeCtx.clearRect(0,0,w,h);
-
-    snakeCtx.fillStyle = "#061006";
-    snakeCtx.fillRect(0,0,w,h);
-
-    /* subtle grid */
-    snakeCtx.strokeStyle = "rgba(255,255,255,.035)";
-    snakeCtx.lineWidth = 1;
-
-    for(let i=1;i<snakeCells;i++){
-        snakeCtx.beginPath();
-        snakeCtx.moveTo(i*cell,0);
-        snakeCtx.lineTo(i*cell,h);
-        snakeCtx.stroke();
-
-        snakeCtx.beginPath();
-        snakeCtx.moveTo(0,i*cell);
-        snakeCtx.lineTo(w,i*cell);
-        snakeCtx.stroke();
-    }
-
-    /* food */
-    const fx = snakeFood.x * cell + cell/2;
-    const fy = snakeFood.y * cell + cell/2;
-
-    snakeCtx.beginPath();
-    snakeCtx.fillStyle = "#ff2020";
-    snakeCtx.shadowColor = "#ff0000";
-    snakeCtx.shadowBlur = cell * .55;
-    snakeCtx.arc(fx,fy,cell*.30,0,Math.PI*2);
-    snakeCtx.fill();
-    snakeCtx.shadowBlur = 0;
-
-    /* snake */
-    snakeBody.forEach((part,index)=>{
-        const pad = index === 0 ? cell*.10 : cell*.14;
-        const x = part.x*cell + pad;
-        const y = part.y*cell + pad;
-        const size = cell - pad*2;
-
-        snakeCtx.fillStyle = index === 0 ? "#8cff36" : "#37b82c";
-        roundedRect(snakeCtx,x,y,size,size,cell*.18);
-        snakeCtx.fill();
-
-        if(index === 0){
-            /* eyes */
-            snakeCtx.fillStyle = "#081008";
-            const eye = cell*.08;
-
-            let ex1 = x+size*.30;
-            let ex2 = x+size*.68;
-            let ey = y+size*.30;
-
-            if(snakeDirection.x !== 0){
-                ey = y+size*.28;
-                ex1 = snakeDirection.x > 0 ? x+size*.72 : x+size*.20;
-                ex2 = ex1;
-                snakeCtx.beginPath();
-                snakeCtx.arc(ex1,ey,eye,0,Math.PI*2);
-                snakeCtx.fill();
-                snakeCtx.beginPath();
-                snakeCtx.arc(ex2,y+size*.72,eye,0,Math.PI*2);
-                snakeCtx.fill();
-            }else{
-                ex1 = x+size*.28;
-                ex2 = x+size*.72;
-                ey = snakeDirection.y > 0 ? y+size*.72 : y+size*.20;
-                snakeCtx.beginPath();
-                snakeCtx.arc(ex1,ey,eye,0,Math.PI*2);
-                snakeCtx.fill();
-                snakeCtx.beginPath();
-                snakeCtx.arc(ex2,ey,eye,0,Math.PI*2);
-                snakeCtx.fill();
-            }
-        }
-    });
-}
-
-function showSnakeOverlay(title,text,buttonText){
-    document.getElementById("snakeOverlayTitle").innerText = title;
-    document.getElementById("snakeOverlayText").innerText = text;
-    document.getElementById("snakeStartButton").innerText = buttonText;
-    document.getElementById("snakeOverlay").classList.add("show");
-}
-
-function snakeGameOver(){
-    stopSnakeLoop();
-    snakeRunning = false;
-    snakePaused = false;
-    document.getElementById("snakePauseBtn").innerText = "⏸ Pause";
-    showSnakeOverlay(
-        "Game Over!",
-        "Your score: " + snakeScore + " • Best: " + snakeBest,
-        "PLAY AGAIN"
-    );
-}
-
-document.addEventListener("keydown",function(e){
-    if(!document.getElementById("snakeGameScreen").classList.contains("active")) return;
-
-    const keys = {
-        ArrowUp:"up",
-        ArrowDown:"down",
-        ArrowLeft:"left",
-        ArrowRight:"right"
-    };
-
-    if(keys[e.key]){
-        e.preventDefault();
-        changeSnakeDirection(keys[e.key]);
-    }
-
-    if(e.key === " "){
-        e.preventDefault();
-        toggleSnakePause();
-    }
-});
-
-window.addEventListener("resize",function(){
-    if(document.getElementById("snakeGameScreen").classList.contains("active")){
-        setupSnakeCanvas();
-    }
-});
-
-/* Swipe controls */
-document.addEventListener("DOMContentLoaded",function(){
-    const board = document.getElementById("snakeCanvas");
-    if(!board) return;
-
-    board.addEventListener("touchstart",function(e){
-        const t = e.changedTouches[0];
-        snakeTouchStartX = t.clientX;
-        snakeTouchStartY = t.clientY;
-    },{passive:true});
-
-    board.addEventListener("touchend",function(e){
-        const t = e.changedTouches[0];
-        const dx = t.clientX - snakeTouchStartX;
-        const dy = t.clientY - snakeTouchStartY;
-
-        if(Math.max(Math.abs(dx),Math.abs(dy)) < 25) return;
-
-        if(Math.abs(dx) > Math.abs(dy)){
-            changeSnakeDirection(dx > 0 ? "right" : "left");
-        }else{
-            changeSnakeDirection(dy > 0 ? "down" : "up");
-        }
-    },{passive:true});
-});
-
-
-/* =====================================================
-   PUZZLE GAME
-===================================================== */
-let puzzleTiles = [];
-let puzzleMoves = 0;
-let puzzleBest = Number(localStorage.getItem("rakibPuzzleBest") || 0);
-
-function openPuzzleGame(){
-    const screen=document.getElementById("puzzleGameScreen");
-    if(!screen)return;
-    screen.classList.add("active");
-    document.body.style.overflow="hidden";ensureGameAudio();updateSoundButtons();
-    document.getElementById("puzzleBest").innerText = puzzleBest || "-";
-    if(!Array.isArray(puzzleTiles) || puzzleTiles.length!==16){
-        resetPuzzle();
-        shufflePuzzle();
-    }else{
-        renderPuzzle();
-    }
-    requestAnimationFrame(renderPuzzle);
-    playGameIntro("puzzleIntro","PUZZLE GAME");
-}
-function closePuzzleGame(){document.getElementById("puzzleGameScreen").classList.remove("active");document.body.style.overflow=""}
-function resetPuzzle(){
-    puzzleTiles=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0];
-    puzzleMoves=0;
-    document.getElementById("puzzleMoves").innerText="0";
-    document.getElementById("puzzleMessage").innerText="Arrange 1–15 in order.";
-    renderPuzzle();
-}
-function shufflePuzzle(){
-    resetPuzzle();
-    for(let i=0;i<180;i++){
-        const empty=puzzleTiles.indexOf(0);
-        const row=Math.floor(empty/4),col=empty%4;
-        const choices=[];
-        if(row>0) choices.push(empty-4);
-        if(row<3) choices.push(empty+4);
-        if(col>0) choices.push(empty-1);
-        if(col<3) choices.push(empty+1);
-        const pick=choices[Math.floor(Math.random()*choices.length)];
-        [puzzleTiles[empty],puzzleTiles[pick]]=[puzzleTiles[pick],puzzleTiles[empty]];
-    }
-    puzzleMoves=0;
-    document.getElementById("puzzleMoves").innerText="0";
-    document.getElementById("puzzleMessage").innerText="Arrange 1–15 in order.";
-    renderPuzzle();
-}
-function renderPuzzle(){
-    const board=document.getElementById("puzzleBoard");
-    if(!board)return;
-    board.innerHTML="";
-    puzzleTiles.forEach((n,i)=>{
-        const b=document.createElement("button");
-        b.className="puzzle-tile"+(n===0?" empty":"");
-        b.innerText=n===0?"":n;
-        b.onclick=()=>movePuzzleTile(i);
-        board.appendChild(b);
-    });
-}
-function movePuzzleTile(index){
-    const empty=puzzleTiles.indexOf(0);
-    const sameRow=Math.floor(index/4)===Math.floor(empty/4);
-    const adjacent=(sameRow&&Math.abs(index-empty)===1)||Math.abs(index-empty)===4;
-    if(!adjacent)return;
-    [puzzleTiles[index],puzzleTiles[empty]]=[puzzleTiles[empty],puzzleTiles[index]];
-    puzzleMoves++;playGameSound("tile");
-    document.getElementById("puzzleMoves").innerText=puzzleMoves;
-    renderPuzzle();
-    if(puzzleTiles.every((v,i)=>v===((i+1)%16))){
-        if(!puzzleBest||puzzleMoves<puzzleBest){
-            puzzleBest=puzzleMoves;
-            localStorage.setItem("rakibPuzzleBest",puzzleBest);
-            document.getElementById("puzzleBest").innerText=puzzleBest;
-        }
-        document.getElementById("puzzleMessage").innerText="🎉 Solved! Great job!";
-    }
-}
-
-/* =====================================================
-   JUMPING GAME
-===================================================== */
-let jumpCanvas,jumpCtx,jumpRAF;
-let jumpRunning=false,jumpOver=false;
-let jumpScore=0,jumpBest=Number(localStorage.getItem("rakibJumpBest")||0);
-let jumpPlayer={x:0,y:0,w:30,h:38,vy:0,onGround:true};
-let jumpObstacles=[];
-let jumpLast=0,jumpSpawn=0,jumpSpeed=175;
-
-function openJumpGame(){
-    document.getElementById("jumpGameScreen").classList.add("active");
-    document.body.style.overflow="hidden";ensureGameAudio();updateSoundButtons();
-    jumpCanvas=document.getElementById("jumpCanvas");resizeJumpCanvas();
-    document.getElementById("jumpBest").innerText=jumpBest;document.getElementById("jumpOverlay").classList.remove("show");
-    playGameIntro("jumpIntro","JUMPING GAME",()=>showJumpOverlay("Jumping Game","Jump over obstacles and survive as long as possible.","START GAME"));
-}
-function closeJumpGame(){
-    stopJumpLoop();
-    document.getElementById("jumpGameScreen").classList.remove("active");
-    document.body.style.overflow="";
-}
-function resizeJumpCanvas(){
-    if(!jumpCanvas)return;
-    const rect=jumpCanvas.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,2);
-    jumpCanvas.width=Math.floor(rect.width*dpr);
-    jumpCanvas.height=Math.floor(rect.height*dpr);
-    jumpCtx=jumpCanvas.getContext("2d");
-    drawJump();
-}
-function resetJump(){
-    stopJumpLoop();
-    jumpScore=0;jumpOver=false;jumpLast=0;jumpSpawn=0;
-    document.getElementById("jumpScore").innerText="0";
-    jumpObstacles=[];
-    jumpPlayer={x:jumpCanvas.width*.16,y:0,w:Math.max(26,jumpCanvas.width*.075),h:Math.max(48,jumpCanvas.width*.145),vy:0,onGround:true};
-    const ground=jumpCanvas.height*.84;
-    jumpPlayer.y=ground-jumpPlayer.h;
-    drawJump();
-}
-function startJumpGame(){
-    const screen=document.getElementById("jumpGameScreen");
-    const overlay=document.getElementById("jumpOverlay");
-    if(!jumpCanvas) jumpCanvas=document.getElementById("jumpCanvas");
-    if(!jumpCanvas) return;
-    if(!jumpCanvas.width || !jumpCanvas.height) resizeJumpCanvas();
-    resetJump();
-    jumpRunning=true;
-    jumpOver=false;
-    if(overlay) overlay.classList.remove("show");
-    if(screen) screen.classList.add("active");
-    document.body.style.overflow="hidden";
-    jumpLast=performance.now();
-    if(jumpRAF) cancelAnimationFrame(jumpRAF);
-    jumpRAF=requestAnimationFrame(jumpLoop);
-}
+function closeSnakeGame(){stopSnakeLoop();snakeRunning=false;const s=document.getElementById('snakeGameScreen');if(s)s.classList.remove('active');document.body.style.overflow=''}
+function resizeSnakeCanvas(){if(!snakeCanvas)snakeCanvas=document.getElementById('snakeCanvas');if(!snakeCanvas)return;const r=snakeCanvas.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2),size=Math.max(260,Math.min(r.width,r.height||r.width));snakeCanvas.width=Math.floor(size*d);snakeCanvas.height=Math.floor(size*d);snakeCtx=snakeCanvas.getContext('2d');drawSnake()}
+function resetSnake(){stopSnakeLoop();snakeScore=0;snakeBody=[{x:9,y:10},{x:8,y:10},{x:7,y:10}];snakeDirection={x:1,y:0};snakeNextDirection={x:1,y:0};snakePaused=false;document.getElementById('snakeScore').innerText='0';document.getElementById('snakePauseBtn').innerText='⏸ Pause';placeSnakeFood();drawSnake()}
+function startSnakeGame(){resetSnake();snakeRunning=true;document.getElementById('snakeOverlay').classList.remove('show');snakeTimer=setInterval(snakeTick,snakeSpeedMs[snakeSpeed])}
+function restartSnakeGame(){startSnakeGame()}
+function stopSnakeLoop(){if(snakeTimer){clearInterval(snakeTimer);snakeTimer=null}}
+function setSnakeSpeed(v){if(!snakeSpeedMs[v])return;snakeSpeed=v;localStorage.setItem('rakibSnakeSpeed',v);updateSnakeSpeedButtons();if(snakeRunning&&!snakePaused){stopSnakeLoop();snakeTimer=setInterval(snakeTick,snakeSpeedMs[v])}}
+function updateSnakeSpeedButtons(){['slow','normal','fast'].forEach(v=>{const b=document.getElementById('snakeSpeed'+v[0].toUpperCase()+v.slice(1));if(b)b.classList.toggle('active',snakeSpeed===v)})}
+function toggleSnakePause(){if(!snakeRunning)return;snakePaused=!snakePaused;document.getElementById('snakePauseBtn').innerText=snakePaused?'▶ Resume':'⏸ Pause'}
+function changeSnakeDirection(dir){if(!snakeRunning||snakePaused)return;const cur=snakeDirection.x===1?'right':snakeDirection.x===-1?'left':snakeDirection.y===1?'down':'up';if({up:'down',down:'up',left:'right',right:'left'}[cur]===dir)return;snakeNextDirection=dir==='up'?{x:0,y:-1}:dir==='down'?{x:0,y:1}:dir==='left'?{x:-1,y:0}:{x:1,y:0}}
+function placeSnakeFood(){let ok=false;while(!ok){snakeFood={x:Math.floor(Math.random()*snakeCells),y:Math.floor(Math.random()*snakeCells)};ok=!snakeBody.some(p=>p.x===snakeFood.x&&p.y===snakeFood.y)}}
+function snakeTick(){if(!snakeRunning||snakePaused)return;snakeDirection={...snakeNextDirection};const h=snakeBody[0],n={x:h.x+snakeDirection.x,y:h.y+snakeDirection.y};if(n.x<0||n.x>=snakeCells||n.y<0||n.y>=snakeCells){snakeGameOver();return}const eat=n.x===snakeFood.x&&n.y===snakeFood.y;const check=eat?snakeBody:snakeBody.slice(0,-1);if(check.some(p=>p.x===n.x&&p.y===n.y)){snakeGameOver();return}snakeBody.unshift(n);if(eat){snakeScore++;document.getElementById('snakeScore').innerText=snakeScore;if(snakeScore>snakeBest){snakeBest=snakeScore;localStorage.setItem('rakibSnakeBest',snakeBest);document.getElementById('snakeBest').innerText=snakeBest}placeSnakeFood();rgSound('eat')}else snakeBody.pop();drawSnake()}
+function snakeGameOver(){stopSnakeLoop();snakeRunning=false;showSnakeOverlay('Game Over','Score: '+snakeScore+' • Best: '+snakeBest,'PLAY AGAIN')}
+function drawSnake(){if(!snakeCtx||!snakeCanvas)return;const w=snakeCanvas.width,h=snakeCanvas.height,cell=w/snakeCells;snakeCtx.fillStyle='#061006';snakeCtx.fillRect(0,0,w,h);snakeCtx.strokeStyle='rgba(255,255,255,.045)';for(let i=1;i<snakeCells;i++){snakeCtx.beginPath();snakeCtx.moveTo(i*cell,0);snakeCtx.lineTo(i*cell,h);snakeCtx.stroke();snakeCtx.beginPath();snakeCtx.moveTo(0,i*cell);snakeCtx.lineTo(w,i*cell);snakeCtx.stroke()}const fx=(snakeFood.x+.5)*cell,fy=(snakeFood.y+.5)*cell;snakeCtx.fillStyle='#ff2638';snakeCtx.shadowColor='#ff2638';snakeCtx.shadowBlur=cell*.45;snakeCtx.beginPath();snakeCtx.arc(fx,fy,cell*.3,0,Math.PI*2);snakeCtx.fill();snakeCtx.shadowBlur=0;snakeBody.forEach((p,i)=>{const pad=cell*.1,x=p.x*cell+pad,y=p.y*cell+pad,sz=cell-pad*2;snakeCtx.fillStyle=i?'#39c52f':'#9cff3a';snakeCtx.fillRect(x,y,sz,sz);if(i===0){snakeCtx.fillStyle='#081008';snakeCtx.beginPath();snakeCtx.arc(x+sz*.7,y+sz*.3,cell*.07,0,Math.PI*2);snakeCtx.fill();snakeCtx.beginPath();snakeCtx.arc(x+sz*.7,y+sz*.7,cell*.07,0,Math.PI*2);snakeCtx.fill()}})}
+function showSnakeOverlay(t,p,b){const o=document.getElementById('snakeOverlay');if(!o)return;document.getElementById('snakeOverlayTitle').innerText=t;document.getElementById('snakeOverlayText').innerText=p;o.querySelector('button').innerText=b;o.classList.add('show')}
+
+/* ---------------- 15 PUZZLE ---------------- */
+let puzzleTiles=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0],puzzleMoves=0,puzzleBest=Number(localStorage.getItem('rakibPuzzleBest')||0);
+function openPuzzleGame(){const s=document.getElementById('puzzleGameScreen');if(!s)return;s.classList.add('active');document.body.style.overflow='hidden';document.getElementById('puzzleBest').innerText=puzzleBest||'-';resetPuzzle()}
+function closePuzzleGame(){document.getElementById('puzzleGameScreen').classList.remove('active');document.body.style.overflow=''}
+function resetPuzzle(){puzzleTiles=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0];puzzleMoves=0;document.getElementById('puzzleMoves').innerText='0';document.getElementById('puzzleMessage').innerText='Arrange 1–15 in order.';renderPuzzle()}
+function shufflePuzzle(){resetPuzzle();for(let k=0;k<180;k++){const e=puzzleTiles.indexOf(0),r=Math.floor(e/4),c=e%4,opts=[];if(r)opts.push(e-4);if(r<3)opts.push(e+4);if(c)opts.push(e-1);if(c<3)opts.push(e+1);const i=opts[Math.floor(Math.random()*opts.length)];[puzzleTiles[e],puzzleTiles[i]]=[puzzleTiles[i],puzzleTiles[e]]}puzzleMoves=0;document.getElementById('puzzleMessage').innerText='Arrange 1–15 in order.';renderPuzzle()}
+function renderPuzzle(){const b=document.getElementById('puzzleBoard');if(!b)return;b.innerHTML='';puzzleTiles.forEach((n,i)=>{const t=document.createElement('button');t.className='puzzle-tile'+(n===0?' empty':'');t.innerText=n||'';t.onclick=()=>movePuzzleTile(i);b.appendChild(t)})}
+function movePuzzleTile(i){const e=puzzleTiles.indexOf(0),same=Math.floor(i/4)===Math.floor(e/4),adj=(same&&Math.abs(i-e)===1)||Math.abs(i-e)===4;if(!adj)return;[puzzleTiles[i],puzzleTiles[e]]=[puzzleTiles[e],puzzleTiles[i]];puzzleMoves++;document.getElementById('puzzleMoves').innerText=puzzleMoves;rgSound('tile');renderPuzzle();if(puzzleTiles.every((v,i)=>v===((i+1)%16))){if(!puzzleBest||puzzleMoves<puzzleBest){puzzleBest=puzzleMoves;localStorage.setItem('rakibPuzzleBest',puzzleBest);document.getElementById('puzzleBest').innerText=puzzleBest}document.getElementById('puzzleMessage').innerText='🎉 Solved!'}}
+
+/* ---------------- 2D JUMPING ---------------- */
+let jumpCanvas=null,jumpCtx=null,jumpRAF=null,jumpRunning=false,jumpScore=0,jumpBest=Number(localStorage.getItem('rakibJumpBest')||0),jumpPlayer,jumpObstacles=[],jumpLast=0,jumpSpawn=0,jumpSpeed=260;
+function openJumpGame(){const s=document.getElementById('jumpGameScreen');if(!s)return;s.classList.add('active');document.body.style.overflow='hidden';jumpCanvas=document.getElementById('jumpCanvas');resizeJumpCanvas();document.getElementById('jumpBest').innerText=jumpBest;showJumpOverlay('2D Jumping','Jump over the blocks and survive.','START GAME')}
+function closeJumpGame(){stopJumpLoop();document.getElementById('jumpGameScreen').classList.remove('active');document.body.style.overflow=''}
+function resizeJumpCanvas(){if(!jumpCanvas)jumpCanvas=document.getElementById('jumpCanvas');if(!jumpCanvas)return;const r=jumpCanvas.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);jumpCanvas.width=Math.max(320,Math.floor(r.width*d));jumpCanvas.height=Math.max(320,Math.floor(r.height*d));jumpCtx=jumpCanvas.getContext('2d');if(jumpPlayer)drawJump()}
+function resetJump(){stopJumpLoop();jumpScore=0;jumpObstacles=[];jumpSpawn=0;jumpLast=0;const w=jumpCanvas.width,h=jumpCanvas.height,ground=h*.82;const pw=Math.max(28,w*.075),ph=Math.max(42,h*.12);jumpPlayer={x:w*.15,y:ground-ph,w:pw,h:ph,vy:0,onGround:true};document.getElementById('jumpScore').innerText='0';drawJump()}
+function startJumpGame(){if(!jumpCanvas)jumpCanvas=document.getElementById('jumpCanvas');if(!jumpCanvas)return;if(!jumpCanvas.width)resizeJumpCanvas();resetJump();jumpRunning=true;document.getElementById('jumpOverlay').classList.remove('show');jumpLast=performance.now();jumpRAF=requestAnimationFrame(jumpLoop)}
 function restartJumpGame(){startJumpGame()}
-function stopJumpLoop(){
-    if(jumpRAF)cancelAnimationFrame(jumpRAF);
-    jumpRAF=null;jumpRunning=false;
-}
+function stopJumpLoop(){if(jumpRAF)cancelAnimationFrame(jumpRAF);jumpRAF=null;jumpRunning=false}
+function jumpAction(){if(!jumpRunning)return;if(jumpPlayer.onGround){jumpPlayer.vy=-Math.sqrt(2*(jumpCanvas.height*3.7)*(jumpCanvas.height*.22));jumpPlayer.onGround=false;rgSound('jump')}}
+function jumpLoop(now){if(!jumpRunning)return;const dt=Math.min(.035,(now-jumpLast)/1000);jumpLast=now;const h=jumpCanvas.height,w=jumpCanvas.width,ground=h*.82;const gravity=h*3.7;jumpPlayer.vy+=gravity*dt;jumpPlayer.y+=jumpPlayer.vy*dt;if(jumpPlayer.y+jumpPlayer.h>=ground){jumpPlayer.y=ground-jumpPlayer.h;jumpPlayer.vy=0;jumpPlayer.onGround=true}jumpSpawn-=dt;if(jumpSpawn<=0){const oh=h*(.07+Math.random()*.07),ow=w*(.045+Math.random()*.035);jumpObstacles.push({x:w+ow,y:ground-oh,w:ow,h:oh,passed:false});jumpSpawn=.9+Math.random()*.8}jumpObstacles.forEach(o=>o.x-=jumpSpeed*dt);for(let i=jumpObstacles.length-1;i>=0;i--){const o=jumpObstacles[i];if(!o.passed&&o.x+o.w<jumpPlayer.x){o.passed=true;jumpScore++;document.getElementById('jumpScore').innerText=jumpScore}if(o.x+o.w<0)jumpObstacles.splice(i,1);if(rectHit(jumpPlayer,o)){jumpGameOver();return}}drawJump();jumpRAF=requestAnimationFrame(jumpLoop)}
+function rectHit(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y}
+function jumpGameOver(){stopJumpLoop();if(jumpScore>jumpBest){jumpBest=jumpScore;localStorage.setItem('rakibJumpBest',jumpBest);document.getElementById('jumpBest').innerText=jumpBest}showJumpOverlay('Game Over','Score: '+jumpScore+' • Best: '+jumpBest,'PLAY AGAIN')}
+function drawJump(){if(!jumpCtx||!jumpCanvas)return;const w=jumpCanvas.width,h=jumpCanvas.height,g=h*.82;jumpCtx.fillStyle='#09121a';jumpCtx.fillRect(0,0,w,h);jumpCtx.fillStyle='#102c3c';jumpCtx.fillRect(0,g,w,h-g);jumpCtx.strokeStyle='#1f89a8';jumpCtx.lineWidth=3;jumpCtx.beginPath();jumpCtx.moveTo(0,g);jumpCtx.lineTo(w,g);jumpCtx.stroke();for(let x=0;x<w;x+=55){jumpCtx.fillStyle='#143244';jumpCtx.fillRect(x,g+12,30,4)}jumpObstacles.forEach(o=>{jumpCtx.fillStyle='#e52d3f';jumpCtx.fillRect(o.x,o.y,o.w,o.h);jumpCtx.fillStyle='#ff6b75';jumpCtx.fillRect(o.x+o.w*.2,o.y+o.h*.12,o.w*.6,o.h*.16)});if(jumpPlayer){jumpCtx.fillStyle='#37d66b';jumpCtx.fillRect(jumpPlayer.x,jumpPlayer.y,jumpPlayer.w,jumpPlayer.h);jumpCtx.fillStyle='#a5ffbd';jumpCtx.fillRect(jumpPlayer.x+jumpPlayer.w*.18,jumpPlayer.y+jumpPlayer.h*.16,jumpPlayer.w*.64,jumpPlayer.h*.25);jumpCtx.fillStyle='#102015';jumpCtx.fillRect(jumpPlayer.x+jumpPlayer.w*.65,jumpPlayer.y+jumpPlayer.h*.3,4,4)}}
+function showJumpOverlay(t,p,b){const o=document.getElementById('jumpOverlay');document.getElementById('jumpOverlayTitle').innerText=t;document.getElementById('jumpOverlayText').innerText=p;o.querySelector('button').innerText=b;o.classList.add('show')}
 
-// Controlled jump: slightly higher initial jump + one mid-air boost per jump.
-let jumpAirBoostUsed=false;
-let jumpAirBoostCooldown=0;
-
-function jumpAction(){
-    if(!jumpRunning)return;
-
-    // Ground jump: slightly higher than before.
-    if(jumpPlayer.onGround){
-        const gravity=jumpCanvas.height*5.5;
-        const jumpHeight=jumpCanvas.height*.09;
-        jumpPlayer.vy=-Math.sqrt(2*gravity*jumpHeight);
-        jumpPlayer.onGround=false;
-        jumpAirBoostUsed=false;
-        jumpAirBoostCooldown=.10;
-        playGameSound("jump");
-        return;
-    }
-
-    // While airborne, one extra tap gives a controlled upward boost.
-    if(!jumpAirBoostUsed && jumpAirBoostCooldown<=0){
-        jumpPlayer.vy=Math.min(jumpPlayer.vy,-jumpCanvas.height*3.15);
-        jumpAirBoostUsed=true;
-        jumpAirBoostCooldown=.12;
-        playGameSound("jump");
-    }
-}
-function jumpLoop(now){
-    if(!jumpRunning)return;
-    const dt=Math.min((now-jumpLast)/1000,.025);jumpLast=now;
-    const ground=jumpCanvas.height*.84;
-    const gravity=jumpCanvas.height*5.5;
-    jumpAirBoostCooldown=Math.max(0,jumpAirBoostCooldown-dt);
-
-    jumpPlayer.vy+=gravity*dt;
-    jumpPlayer.y+=jumpPlayer.vy*dt;
-    if(jumpPlayer.y+jumpPlayer.h>=ground){
-        jumpPlayer.y=ground-jumpPlayer.h;
-        jumpPlayer.vy=0;jumpPlayer.onGround=true;
-        jumpAirBoostUsed=false;
-    }
-
-    // Keep enough distance between obstacles so one jump is dedicated to one obstacle.
-    jumpSpawn+=dt;
-    const interval=Math.max(1.50,1.70-jumpScore*.004);
-    if(jumpSpawn>=interval){
-        jumpSpawn=0;
-        const h=jumpCanvas.height*(.055+Math.random()*.035);
-        const w=jumpCanvas.width*(.04+Math.random()*.02);
-        jumpObstacles.push({x:jumpCanvas.width+w,y:ground-h,w,h});
-    }
-
-    jumpObstacles.forEach(o=>o.x-=jumpSpeed*dt*(1+jumpScore*.006));
-    const before=jumpObstacles.length;
-    jumpObstacles=jumpObstacles.filter(o=>o.x+o.w>0);
-    if(jumpObstacles.length<before){
-        jumpScore++;
-        document.getElementById("jumpScore").innerText=jumpScore;
-    }
-
-    for(const o of jumpObstacles){
-        if(rg8JumpCollision(jumpPlayer,o)){
-            jumpGameOver();return;
-        }
-    }
-    drawJump();
-    jumpRAF=requestAnimationFrame(jumpLoop);
-}
-
-function drawJump(){
-    if(!jumpCtx)return;
-    const w=jumpCanvas.width,h=jumpCanvas.height,ground=h*.84;
-    jumpCtx.clearRect(0,0,w,h);
-    const grad=jumpCtx.createLinearGradient(0,0,0,h);
-    grad.addColorStop(0,"#081a2b");grad.addColorStop(.65,"#071018");grad.addColorStop(1,"#03070b");
-    jumpCtx.fillStyle=grad;jumpCtx.fillRect(0,0,w,h);
-    jumpCtx.globalAlpha=.18;jumpCtx.fillStyle="#37a8ff";
-    for(let i=0;i<9;i++){jumpCtx.beginPath();jumpCtx.arc((i*83)%w,h*(.12+(i%4)*.09),2.5,0,Math.PI*2);jumpCtx.fill()}
-    jumpCtx.globalAlpha=1;
-    jumpCtx.fillStyle="#0b1821";jumpCtx.fillRect(0,ground,w,h-ground);
-    jumpCtx.strokeStyle="#37a8ff";jumpCtx.globalAlpha=.32;jumpCtx.lineWidth=2;
-    jumpCtx.beginPath();jumpCtx.moveTo(0,ground);jumpCtx.lineTo(w,ground);jumpCtx.stroke();jumpCtx.globalAlpha=1;
-    jumpObstacles.forEach(o=>{
-        jumpCtx.fillStyle="#ff3048";roundedRect(jumpCtx,o.x,o.y,o.w,o.h,5);jumpCtx.fill();
-        jumpCtx.fillStyle="#ff8a98";roundedRect(jumpCtx,o.x+o.w*.16,o.y+o.h*.12,o.w*.18,o.h*.7,3);jumpCtx.fill();
-    });
-    drawJumpPerson();
-}
-function drawJumpPerson(){
-    const p=jumpPlayer,cx=p.x+p.w/2,r=p.w*.30;
-    const headY=p.y+r*.9,bodyTop=p.y+p.h*.27,legY=p.y+p.h*.64;
-    const swing=Math.sin(performance.now()/90)*p.w*.12;
-    const ground=jumpCanvas.height*.84;
-    jumpCtx.globalAlpha=.25;jumpCtx.fillStyle="#000";jumpCtx.beginPath();jumpCtx.ellipse(cx,ground+3,p.w*.7,4,0,0,Math.PI*2);jumpCtx.fill();jumpCtx.globalAlpha=1;
-    jumpCtx.strokeStyle="#4da9ff";jumpCtx.lineWidth=Math.max(4,p.w*.12);jumpCtx.lineCap="round";
-    jumpCtx.beginPath();jumpCtx.moveTo(cx-p.w*.12,legY);jumpCtx.lineTo(cx-p.w*.28+swing,p.y+p.h*.96);jumpCtx.moveTo(cx+p.w*.12,legY);jumpCtx.lineTo(cx+p.w*.31-swing,p.y+p.h*.96);jumpCtx.stroke();
-    jumpCtx.strokeStyle="#fff";jumpCtx.lineWidth=Math.max(5,p.w*.15);jumpCtx.beginPath();jumpCtx.moveTo(cx-p.w*.28+swing,p.y+p.h*.96);jumpCtx.lineTo(cx-p.w*.43+swing,p.y+p.h*.96);jumpCtx.moveTo(cx+p.w*.31-swing,p.y+p.h*.96);jumpCtx.lineTo(cx+p.w*.46-swing,p.y+p.h*.96);jumpCtx.stroke();
-    jumpCtx.fillStyle="#ff3048";roundedRect(jumpCtx,p.x+p.w*.23,bodyTop,p.w*.54,p.h*.43,8);jumpCtx.fill();
-    jumpCtx.strokeStyle="#f1b28d";jumpCtx.lineWidth=Math.max(4,p.w*.12);jumpCtx.beginPath();jumpCtx.moveTo(p.x+p.w*.27,p.y+p.h*.36);jumpCtx.lineTo(p.x-p.w*.02,p.y+p.h*.52-swing);jumpCtx.moveTo(p.x+p.w*.73,p.y+p.h*.36);jumpCtx.lineTo(p.x+p.w*1.02,p.y+p.h*.50+swing);jumpCtx.stroke();
-    jumpCtx.fillStyle="#f1b28d";jumpCtx.beginPath();jumpCtx.arc(cx,headY,r,0,Math.PI*2);jumpCtx.fill();
-    jumpCtx.fillStyle="#151a22";jumpCtx.beginPath();jumpCtx.arc(cx,headY-r*.12,r*1.02,Math.PI,Math.PI*2);jumpCtx.fill();
-    jumpCtx.fillStyle="#111";jumpCtx.beginPath();jumpCtx.arc(cx+r*.38,headY-r*.02,Math.max(1.7,p.w*.045),0,Math.PI*2);jumpCtx.fill();
-}
-function showJumpOverlay(title,text,button){
-    document.getElementById("jumpOverlayTitle").innerText=title;
-    document.getElementById("jumpOverlayText").innerText=text;
-    document.getElementById("jumpStartButton").innerText=button;
-    document.getElementById("jumpOverlay").classList.add("show");
-}
-/* RG8_JUMP_COLLISION_FIX */
-function rg8JumpCollision(a,b){
- const px=Math.max(4,a.w*.18), py=Math.max(3,a.h*.14);
- return a.x+px<b.x+b.w && a.x+a.w-px>b.x && a.y+py<b.y+b.h && a.y+a.h-py>b.y;
-}
-function jumpGameOver(){
-    stopJumpLoop();jumpOver=true;
-    if(jumpScore>jumpBest){jumpBest=jumpScore;localStorage.setItem("rakibJumpBest",jumpBest);document.getElementById("jumpBest").innerText=jumpBest}
-    showJumpOverlay("Game Over!","Your score: "+jumpScore+" • Best: "+jumpBest,"PLAY AGAIN");
-}
-window.addEventListener("resize",()=>{if(document.getElementById("jumpGameScreen").classList.contains("active"))resizeJumpCanvas()});
-
-/* =====================================================
-   BUBBLE BATTLE — PLAYER VS BOT
-===================================================== */
-let bubbleCanvas,bubbleCtx,bubbleRAF,bubbleRunning=false;
-let bubbleScore=0,bubbleAngle=-Math.PI/2,botHp=100,playerHp=100,bubbleLast=0,bubbleFireCooldown=0;
-let bubblePlayer={x:0,y:0,w:0,h:0},bubbleBot={x:0,y:0,w:0,h:0,dir:1,shotTimer:1};
-let bubbleShots=[],botShots=[];
-
-function openBubbleGame(){
- const screen=document.getElementById("bubbleGameScreen"); if(!screen)return;
- screen.classList.add("active"); document.body.style.overflow="hidden";ensureGameAudio();updateSoundButtons();
- bubbleCanvas=document.getElementById("bubbleCanvas"); resizeBubbleCanvas();document.getElementById("bubbleOverlay").classList.remove("show");
- playGameIntro("bubbleIntro","BUBBLE BATTLE",()=>showBubbleOverlay("Bubble Battle","Defeat the bot. Aim your Bubble Gun and hit the bot before it hits you.","START BATTLE"));
-}
-function closeBubbleGame(){stopBubbleGame();const s=document.getElementById("bubbleGameScreen");if(s)s.classList.remove("active");document.body.style.overflow=""}
-function resizeBubbleCanvas(){
- if(!bubbleCanvas)return;
- const r=bubbleCanvas.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);
- bubbleCanvas.width=Math.max(1,Math.floor(r.width*d));bubbleCanvas.height=Math.max(1,Math.floor(r.height*d));
- bubbleCtx=bubbleCanvas.getContext("2d");setBattlePositions();drawBubbleBattle();
-}
-function setBattlePositions(){
- const w=bubbleCanvas.width,h=bubbleCanvas.height;
- bubblePlayer.w=w*.13;bubblePlayer.h=h*.14;bubblePlayer.x=w/2-bubblePlayer.w/2;bubblePlayer.y=h-bubblePlayer.h*1.35;
- bubbleBot.w=w*.14;bubbleBot.h=h*.15;bubbleBot.x=w/2-bubbleBot.w/2;bubbleBot.y=h*.10;
-}
-function resetBubbleBattle(){
- stopBubbleGame();bubbleScore=0;botHp=100;playerHp=100;bubbleShots=[];botShots=[];bubbleAngle=-Math.PI/2;
- bubbleFireCooldown=0;bubbleBot.shotTimer=1;bubbleBot.dir=Math.random()<.5?-1:1;setBattlePositions();updateBattleHud();drawBubbleBattle();
-}
-function startBubbleGame(){
-  const screen=document.getElementById("bubbleGameScreen");
-  const overlay=document.getElementById("bubbleOverlay");
-  if(!bubbleCanvas) bubbleCanvas=document.getElementById("bubbleCanvas");
-  if(!bubbleCanvas) return;
-  if(!bubbleCanvas.width || !bubbleCanvas.height) resizeBubbleCanvas();
-  resetBubbleBattle();
-  bubbleRunning=true;
-  if(overlay) overlay.classList.remove("show");
-  if(screen) screen.classList.add("active");
-  document.body.style.overflow="hidden";
-  bubbleLast=performance.now();
-  if(bubbleRAF) cancelAnimationFrame(bubbleRAF);
-  bubbleRAF=requestAnimationFrame(bubbleBattleLoop);
-}
+/* ---------------- BUBBLE SHOOTING: PLAYER VS BOT ---------------- */
+let bubbleCanvas=null,bubbleCtx=null,bubbleRAF=null,bubbleRunning=false,bubbleScore=0,botHp=100,playerHp=100,bubbleAngle=-Math.PI/2,bubbleShots=[],botShots=[],bubbleFireCooldown=0,bubbleBot={x:0,y:0,w:0,h:0,dir:1,timer:1};
+let bubblePlayer={x:0,y:0,w:0,h:0};
+function openBubbleGame(){const s=document.getElementById('bubbleGameScreen');if(!s)return;s.classList.add('active');document.body.style.overflow='hidden';bubbleCanvas=document.getElementById('bubbleCanvas');resizeBubbleCanvas();showBubbleOverlay('Bubble Battle','Shoot the bot. Every hit = 5 HP damage.','START BATTLE')}
+function closeBubbleGame(){stopBubbleGame();document.getElementById('bubbleGameScreen').classList.remove('active');document.body.style.overflow=''}
+function resizeBubbleCanvas(){if(!bubbleCanvas)bubbleCanvas=document.getElementById('bubbleCanvas');if(!bubbleCanvas)return;const r=bubbleCanvas.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);bubbleCanvas.width=Math.max(320,Math.floor(r.width*d));bubbleCanvas.height=Math.max(360,Math.floor(r.height*d));bubbleCtx=bubbleCanvas.getContext('2d');setBubblePositions();drawBubbleBattle()}
+function setBubblePositions(){const w=bubbleCanvas.width,h=bubbleCanvas.height;bubblePlayer={x:w*.44,y:h*.82,w:w*.12,h:h*.12};bubbleBot={x:w*.44,y:h*.08,w:w*.12,h:h*.12,dir:Math.random()<.5?-1:1,timer:1}}
+function resetBubbleBattle(){stopBubbleGame();bubbleScore=0;botHp=100;playerHp=100;bubbleShots=[];botShots=[];bubbleAngle=-Math.PI/2;bubbleFireCooldown=0;setBubblePositions();updateBattleHud();drawBubbleBattle()}
+function startBubbleGame(){if(!bubbleCanvas)bubbleCanvas=document.getElementById('bubbleCanvas');if(!bubbleCanvas)return;if(!bubbleCanvas.width)resizeBubbleCanvas();resetBubbleBattle();bubbleRunning=true;document.getElementById('bubbleOverlay').classList.remove('show');bubbleLast=performance.now();bubbleRAF=requestAnimationFrame(bubbleLoop)}
 function restartBubbleGame(){startBubbleGame()}
 function stopBubbleGame(){if(bubbleRAF)cancelAnimationFrame(bubbleRAF);bubbleRAF=null;bubbleRunning=false}
-function updateBattleHud(){
- const a=document.getElementById("bubbleScore"),b=document.getElementById("botHpText"),c=document.getElementById("playerHpText"),d=document.getElementById("botHpBar"),e=document.getElementById("playerHpBar");
- if(a)a.innerText=bubbleScore;if(b)b.innerText=Math.max(0,Math.ceil(botHp));if(c)c.innerText=Math.max(0,Math.ceil(playerHp));
- if(d)d.style.width=Math.max(0,botHp)+"%";if(e)e.style.width=Math.max(0,playerHp)+"%";
-}
-function bubbleSetAim(x,y){
- const r=bubbleCanvas.getBoundingClientRect();x=(x-r.left)*bubbleCanvas.width/r.width;y=(y-r.top)*bubbleCanvas.height/r.height;
- const sx=bubblePlayer.x+bubblePlayer.w/2,sy=bubblePlayer.y+bubblePlayer.h*.1;bubbleAngle=Math.atan2(y-sy,x-sx);
- if(bubbleAngle>-0.16)bubbleAngle=-0.16;if(bubbleAngle<-Math.PI+0.16)bubbleAngle=-Math.PI+0.16;
-}
-function fireBubble(){
- if(!bubbleRunning||bubbleFireCooldown>0)return;bubbleFireCooldown=.28;
- const sx=bubblePlayer.x+bubblePlayer.w/2,sy=bubblePlayer.y+bubblePlayer.h*.1,sp=bubbleCanvas.height*1.05;
- bubbleShots.push({x:sx,y:sy,vx:Math.cos(bubbleAngle)*sp,vy:Math.sin(bubbleAngle)*sp,r:Math.max(8,bubbleCanvas.width*.024),life:2.5});
- playGameSound("shoot");
-}
-function botFire(){
- const sx=bubbleBot.x+bubbleBot.w/2,sy=bubbleBot.y+bubbleBot.h*.9,tx=bubblePlayer.x+bubblePlayer.w/2,ty=bubblePlayer.y+bubblePlayer.h*.2;
- const dx=tx-sx,dy=ty-sy,len=Math.hypot(dx,dy)||1,sp=bubbleCanvas.height*.55;
- botShots.push({x:sx,y:sy,vx:dx/len*sp,vy:dy/len*sp,r:Math.max(8,bubbleCanvas.width*.026),life:3});
-}
-function circleRectHit(s,r){const x=Math.max(r.x,Math.min(s.x,r.x+r.w)),y=Math.max(r.y,Math.min(s.y,r.y+r.h));return Math.hypot(s.x-x,s.y-y)<s.r}
-function bubbleBattleLoop(now){
- if(!bubbleRunning)return;const dt=Math.min((now-bubbleLast)/1000,.035);bubbleLast=now;bubbleFireCooldown=Math.max(0,bubbleFireCooldown-dt);
- const w=bubbleCanvas.width,h=bubbleCanvas.height;
- bubbleBot.x+=bubbleBot.dir*w*.12*dt;
- if(bubbleBot.x<8){bubbleBot.x=8;bubbleBot.dir=1}
- if(bubbleBot.x+bubbleBot.w>w-8){bubbleBot.x=w-bubbleBot.w-8;bubbleBot.dir=-1}
- bubbleBot.shotTimer-=dt;if(bubbleBot.shotTimer<=0){botFire();bubbleBot.shotTimer=.95+Math.random()*.7}
- for(let i=bubbleShots.length-1;i>=0;i--){
-  const s=bubbleShots[i];s.x+=s.vx*dt;s.y+=s.vy*dt;s.life-=dt;
-  if(s.x<0||s.x>w){s.vx*=-1;s.x=Math.max(0,Math.min(w,s.x))}
-  if(s.life<=0||s.y<0){bubbleShots.splice(i,1);continue}
-  if(circleRectHit(s,bubbleBot)){bubbleShots.splice(i,1);botHp-=5;bubbleScore+=5;updateBattleHud();if(botHp<=0){battleWin();return}}
- }
- for(let i=botShots.length-1;i>=0;i--){
-  const s=botShots[i];s.x+=s.vx*dt;s.y+=s.vy*dt;s.life-=dt;
-  if(s.life<=0||s.y>h+20){botShots.splice(i,1);continue}
-  if(circleRectHit(s,bubblePlayer)){botShots.splice(i,1);playerHp-=5;updateBattleHud();if(playerHp<=0){battleLose();return}}
- }
- drawBubbleBattle();bubbleRAF=requestAnimationFrame(bubbleBattleLoop);
-}
-function drawShot(s,c1,c2){
- bubbleCtx.save();bubbleCtx.shadowColor=c1;bubbleCtx.shadowBlur=s.r*2.2;
- const g=bubbleCtx.createRadialGradient(s.x-s.r*.3,s.y-s.r*.3,1,s.x,s.y,s.r);
- g.addColorStop(0,"#fff");g.addColorStop(.25,c2);g.addColorStop(1,c1);bubbleCtx.fillStyle=g;
- bubbleCtx.beginPath();bubbleCtx.arc(s.x,s.y,s.r,0,Math.PI*2);bubbleCtx.fill();bubbleCtx.restore();
-}
-function drawBubbleBattle(){
- if(!bubbleCtx)return;const w=bubbleCanvas.width,h=bubbleCanvas.height;bubbleCtx.clearRect(0,0,w,h);
- const bg=bubbleCtx.createLinearGradient(0,0,0,h);bg.addColorStop(0,"#071d2c");bg.addColorStop(.52,"#07111a");bg.addColorStop(1,"#03070b");bubbleCtx.fillStyle=bg;bubbleCtx.fillRect(0,0,w,h);
- bubbleCtx.strokeStyle="rgba(73,170,220,.08)";bubbleCtx.lineWidth=1;const step=Math.max(28,w*.08);
- for(let x=0;x<w;x+=step){bubbleCtx.beginPath();bubbleCtx.moveTo(x,0);bubbleCtx.lineTo(x,h);bubbleCtx.stroke()}
- for(let y=0;y<h;y+=step){bubbleCtx.beginPath();bubbleCtx.moveTo(0,y);bubbleCtx.lineTo(w,y);bubbleCtx.stroke()}
- bubbleCtx.strokeStyle="rgba(255,55,85,.35)";bubbleCtx.setLineDash([8,8]);bubbleCtx.beginPath();bubbleCtx.moveTo(0,h*.48);bubbleCtx.lineTo(w,h*.48);bubbleCtx.stroke();bubbleCtx.setLineDash([]);
- drawBattleBot();drawBattlePlayer();bubbleShots.forEach(s=>drawShot(s,"#53d7ff","#b9f2ff"));botShots.forEach(s=>drawShot(s,"#ff456a","#ffd0d8"));
- const sx=bubblePlayer.x+bubblePlayer.w/2,sy=bubblePlayer.y+bubblePlayer.h*.1;
- bubbleCtx.globalAlpha=.22;bubbleCtx.strokeStyle="#6bdcff";bubbleCtx.setLineDash([7,10]);bubbleCtx.beginPath();bubbleCtx.moveTo(sx,sy);bubbleCtx.lineTo(sx+Math.cos(bubbleAngle)*w*.3,sy+Math.sin(bubbleAngle)*w*.3);bubbleCtx.stroke();bubbleCtx.setLineDash([]);bubbleCtx.globalAlpha=1;
-}
-function drawBattleBot(){
- const b=bubbleBot,cx=b.x+b.w/2;bubbleCtx.fillStyle="rgba(0,0,0,.45)";bubbleCtx.beginPath();bubbleCtx.ellipse(cx,b.y+b.h+5,b.w*.65,5,0,0,Math.PI*2);bubbleCtx.fill();
- bubbleCtx.strokeStyle="#8d9aaa";bubbleCtx.lineWidth=Math.max(5,b.w*.13);bubbleCtx.lineCap="round";bubbleCtx.beginPath();bubbleCtx.moveTo(cx-b.w*.15,b.y+b.h*.68);bubbleCtx.lineTo(cx-b.w*.3,b.y+b.h);bubbleCtx.moveTo(cx+b.w*.15,b.y+b.h*.68);bubbleCtx.lineTo(cx+b.w*.3,b.y+b.h);bubbleCtx.stroke();
- bubbleCtx.fillStyle="#394b5c";roundedRect(bubbleCtx,b.x+b.w*.18,b.y+b.h*.32,b.w*.64,b.h*.45,8);bubbleCtx.fill();
- bubbleCtx.fillStyle="#263746";bubbleCtx.beginPath();bubbleCtx.arc(cx,b.y+b.h*.22,b.w*.28,0,Math.PI*2);bubbleCtx.fill();
- bubbleCtx.fillStyle="#ff3f62";bubbleCtx.beginPath();bubbleCtx.arc(cx-b.w*.1,b.y+b.h*.2,2.5,0,Math.PI*2);bubbleCtx.fill();bubbleCtx.beginPath();bubbleCtx.arc(cx+b.w*.1,b.y+b.h*.2,2.5,0,Math.PI*2);bubbleCtx.fill();
- bubbleCtx.strokeStyle="#ff4b69";bubbleCtx.lineWidth=Math.max(5,b.w*.12);bubbleCtx.beginPath();bubbleCtx.moveTo(cx,b.y+b.h*.48);bubbleCtx.lineTo(cx,b.y+b.h*.7);bubbleCtx.stroke();
-}
-function drawBattlePlayer(){
- const p=bubblePlayer,cx=p.x+p.w/2;bubbleCtx.fillStyle="rgba(0,0,0,.45)";bubbleCtx.beginPath();bubbleCtx.ellipse(cx,p.y+p.h+5,p.w*.65,5,0,0,Math.PI*2);bubbleCtx.fill();
- bubbleCtx.strokeStyle="#4ba7ff";bubbleCtx.lineWidth=Math.max(5,p.w*.13);bubbleCtx.lineCap="round";bubbleCtx.beginPath();bubbleCtx.moveTo(cx-p.w*.14,p.y+p.h*.65);bubbleCtx.lineTo(cx-p.w*.3,p.y+p.h);bubbleCtx.moveTo(cx+p.w*.14,p.y+p.h*.65);bubbleCtx.lineTo(cx+p.w*.3,p.y+p.h);bubbleCtx.stroke();
- bubbleCtx.fillStyle="#e82d42";roundedRect(bubbleCtx,p.x+p.w*.18,p.y+p.h*.34,p.w*.64,p.h*.42,8);bubbleCtx.fill();
- bubbleCtx.fillStyle="#f0b28a";bubbleCtx.beginPath();bubbleCtx.arc(cx,p.y+p.h*.22,p.w*.27,0,Math.PI*2);bubbleCtx.fill();
- bubbleCtx.fillStyle="#171717";bubbleCtx.beginPath();bubbleCtx.arc(cx,p.y+p.h*.15,p.w*.27,Math.PI,Math.PI*2);bubbleCtx.fill();
- bubbleCtx.save();bubbleCtx.translate(cx,p.y+p.h*.48);bubbleCtx.rotate(bubbleAngle);bubbleCtx.strokeStyle="#6edcff";bubbleCtx.lineWidth=Math.max(5,p.w*.12);bubbleCtx.beginPath();bubbleCtx.moveTo(0,0);bubbleCtx.lineTo(p.w*.48,0);bubbleCtx.stroke();bubbleCtx.restore();
-}
-function showBubbleOverlay(title,text,button){
- const a=document.getElementById("bubbleOverlayTitle"),b=document.getElementById("bubbleOverlayText"),c=document.getElementById("bubbleStartButton"),d=document.getElementById("bubbleOverlay");
- if(a)a.innerText=title;if(b)b.innerText=text;if(c)c.innerText=button;if(d)d.classList.add("show");
-}
-function battleWin(){stopBubbleGame();bubbleScore+=100;updateBattleHud();showBubbleOverlay("YOU WIN!","Bot defeated! Final score: "+bubbleScore,"PLAY AGAIN")}
-function battleLose(){stopBubbleGame();showBubbleOverlay("GAME OVER","The bot defeated you. Try again!","PLAY AGAIN")}
-document.addEventListener("DOMContentLoaded",function(){
- const b=document.getElementById("bubbleCanvas"),f=document.getElementById("bubbleFireBtn");if(!b)return;
- b.addEventListener("pointermove",e=>{if(bubbleRunning)bubbleSetAim(e.clientX,e.clientY)});
- b.addEventListener("pointerdown",e=>{if(bubbleRunning)bubbleSetAim(e.clientX,e.clientY)});
- if(f)f.addEventListener("pointerdown",e=>{e.preventDefault();fireBubble()});
-});
-window.addEventListener("resize",()=>{const s=document.getElementById("bubbleGameScreen");if(s&&s.classList.contains("active"))resizeBubbleCanvas()});
+let bubbleLast=0;
+function updateBattleHud(){document.getElementById('bubbleScore').innerText=bubbleScore;document.getElementById('botHpText').innerText=Math.max(0,botHp);document.getElementById('playerHpText').innerText=Math.max(0,playerHp);document.getElementById('botHpBar').style.width=Math.max(0,botHp)+'%';document.getElementById('playerHpBar').style.width=Math.max(0,playerHp)+'%'}
+function bubbleAim(clientX,clientY){const r=bubbleCanvas.getBoundingClientRect(),x=(clientX-r.left)*bubbleCanvas.width/r.width,y=(clientY-r.top)*bubbleCanvas.height/r.height,sx=bubblePlayer.x+bubblePlayer.w/2,sy=bubblePlayer.y+bubblePlayer.h*.15;bubbleAngle=Math.atan2(y-sy,x-sx);bubbleAngle=Math.max(-Math.PI+.15,Math.min(-.15,bubbleAngle))}
+function fireBubble(){if(!bubbleRunning||bubbleFireCooldown>0)return;bubbleFireCooldown=.25;const sx=bubblePlayer.x+bubblePlayer.w/2,sy=bubblePlayer.y,b=bubbleCanvas.height*.95;bubbleShots.push({x:sx,y:sy,vx:Math.cos(bubbleAngle)*b,vy:Math.sin(bubbleAngle)*b,r:Math.max(8,bubbleCanvas.width*.022),life:3});rgSound('shoot')}
+function botFire(){const sx=bubbleBot.x+bubbleBot.w/2,sy=bubbleBot.y+bubbleBot.h,tx=bubblePlayer.x+bubblePlayer.w/2,ty=bubblePlayer.y,dx=tx-sx,dy=ty-sy,len=Math.hypot(dx,dy)||1,sp=bubbleCanvas.height*.55;botShots.push({x:sx,y:sy,vx:dx/len*sp,vy:dy/len*sp,r:Math.max(8,bubbleCanvas.width*.024),life:3})}
+function bubbleHit(s,r){const x=Math.max(r.x,Math.min(s.x,r.x+r.w)),y=Math.max(r.y,Math.min(s.y,r.y+r.h));return Math.hypot(s.x-x,s.y-y)<=s.r}
+function bubbleLoop(now){if(!bubbleRunning)return;const dt=Math.min(.035,(now-bubbleLast)/1000);bubbleLast=now;bubbleFireCooldown=Math.max(0,bubbleFireCooldown-dt);const w=bubbleCanvas.width,h=bubbleCanvas.height;bubbleBot.x+=bubbleBot.dir*w*.18*dt;if(bubbleBot.x<5){bubbleBot.x=5;bubbleBot.dir=1}if(bubbleBot.x+bubbleBot.w>w-5){bubbleBot.x=w-bubbleBot.w-5;bubbleBot.dir=-1}bubbleBot.timer-=dt;if(bubbleBot.timer<=0){botFire();bubbleBot.timer=.8+Math.random()*.7}for(let i=bubbleShots.length-1;i>=0;i--){const s=bubbleShots[i];s.x+=s.vx*dt;s.y+=s.vy*dt;s.life-=dt;if(s.x<0||s.x>w||s.y<0||s.life<=0){bubbleShots.splice(i,1);continue}if(bubbleHit(s,bubbleBot)){bubbleShots.splice(i,1);botHp-=5;bubbleScore+=5;updateBattleHud();if(botHp<=0){battleWin();return}}}for(let i=botShots.length-1;i>=0;i--){const s=botShots[i];s.x+=s.vx*dt;s.y+=s.vy*dt;s.life-=dt;if(s.y>h+30||s.life<=0){botShots.splice(i,1);continue}if(bubbleHit(s,bubblePlayer)){botShots.splice(i,1);playerHp-=5;updateBattleHud();if(playerHp<=0){battleLose();return}}}drawBubbleBattle();bubbleRAF=requestAnimationFrame(bubbleLoop)}
+function drawBubbleBattle(){if(!bubbleCtx)return;const w=bubbleCanvas.width,h=bubbleCanvas.height;const g=bubbleCtx.createLinearGradient(0,0,0,h);g.addColorStop(0,'#09243a');g.addColorStop(1,'#03070b');bubbleCtx.fillStyle=g;bubbleCtx.fillRect(0,0,w,h);bubbleCtx.strokeStyle='rgba(100,200,255,.08)';for(let x=0;x<w;x+=50){bubbleCtx.beginPath();bubbleCtx.moveTo(x,0);bubbleCtx.lineTo(x,h);bubbleCtx.stroke()}for(let y=0;y<h;y+=50){bubbleCtx.beginPath();bubbleCtx.moveTo(0,y);bubbleCtx.lineTo(w,y);bubbleCtx.stroke()}drawBubbleFighter(bubbleBot,'#d92e46','#ff6070',true);drawBubbleFighter(bubblePlayer,'#2e83ff','#66baff',false);bubbleShots.forEach(s=>drawBubbleShot(s,'#65e7ff'));botShots.forEach(s=>drawBubbleShot(s,'#ff506b'));const sx=bubblePlayer.x+bubblePlayer.w/2,sy=bubblePlayer.y+bubblePlayer.h*.15;bubbleCtx.strokeStyle='rgba(120,220,255,.45)';bubbleCtx.setLineDash([7,9]);bubbleCtx.beginPath();bubbleCtx.moveTo(sx,sy);bubbleCtx.lineTo(sx+Math.cos(bubbleAngle)*w*.3,sy+Math.sin(bubbleAngle)*w*.3);bubbleCtx.stroke();bubbleCtx.setLineDash([])}
+function drawBubbleShot(s,c){bubbleCtx.fillStyle=c;bubbleCtx.shadowColor=c;bubbleCtx.shadowBlur=s.r*2;bubbleCtx.beginPath();bubbleCtx.arc(s.x,s.y,s.r,0,Math.PI*2);bubbleCtx.fill();bubbleCtx.shadowBlur=0}
+function drawBubbleFighter(p,body,accent,bot){const cx=p.x+p.w/2;bubbleCtx.fillStyle='rgba(0,0,0,.35)';bubbleCtx.beginPath();bubbleCtx.ellipse(cx,p.y+p.h+8,p.w*.65,7,0,0,Math.PI*2);bubbleCtx.fill();bubbleCtx.fillStyle=body;bubbleCtx.fillRect(p.x+p.w*.18,p.y+p.h*.35,p.w*.64,p.h*.5);bubbleCtx.fillStyle=bot?'#3b4b5d':'#f0b18d';bubbleCtx.beginPath();bubbleCtx.arc(cx,p.y+p.h*.2,p.w*.28,0,Math.PI*2);bubbleCtx.fill();bubbleCtx.fillStyle=bot?accent:'#171717';bubbleCtx.fillRect(p.x+p.w*.3,p.y+p.h*.11,p.w*.4,p.h*.1);bubbleCtx.strokeStyle=accent;bubbleCtx.lineWidth=Math.max(5,p.w*.11);bubbleCtx.beginPath();bubbleCtx.moveTo(cx,p.y+p.h*.52);bubbleCtx.lineTo(cx+(bot?Math.cos(Math.PI/2):Math.cos(bubbleAngle))*p.w*.48,p.y+p.h*.52+(bot?Math.sin(Math.PI/2):Math.sin(bubbleAngle))*p.w*.48);bubbleCtx.stroke()}
+function showBubbleOverlay(t,p,b){const o=document.getElementById('bubbleOverlay');document.getElementById('bubbleOverlayTitle').innerText=t;document.getElementById('bubbleOverlayText').innerText=p;o.querySelector('button').innerText=b;o.classList.add('show')}
+function battleWin(){stopBubbleGame();bubbleScore+=100;updateBattleHud();showBubbleOverlay('YOU WIN!','Bot defeated. Final score: '+bubbleScore,'PLAY AGAIN')}
+function battleLose(){stopBubbleGame();showBubbleOverlay('GAME OVER','The bot defeated you. Try again!','PLAY AGAIN')}
 
-/* RG8_BUTTON_FIX — reliable mobile taps for Jump/Bubble start buttons */
-document.addEventListener("DOMContentLoaded",function(){
-  const js=document.getElementById("jumpStartButton");
-  const bs=document.getElementById("bubbleStartButton");
-  if(js){
-    js.addEventListener("click",function(e){e.preventDefault();e.stopPropagation();startJumpGame();});
-    js.addEventListener("pointerup",function(e){e.preventDefault();});
-  }
-  if(bs){
-    bs.addEventListener("click",function(e){e.preventDefault();e.stopPropagation();startBubbleGame();});
-    bs.addEventListener("pointerup",function(e){e.preventDefault();});
-  }
+/* Input */
+document.addEventListener('DOMContentLoaded',()=>{
+ const sc=document.getElementById('snakeCanvas');if(sc){let sx=0,sy=0;sc.addEventListener('touchstart',e=>{const t=e.touches[0];sx=t.clientX;sy=t.clientY},{passive:true});sc.addEventListener('touchend',e=>{const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;if(Math.max(Math.abs(dx),Math.abs(dy))>25)changeSnakeDirection(Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up'))},{passive:true})}
+ const bc=document.getElementById('bubbleCanvas'),bf=document.getElementById('bubbleFireBtn');if(bc){bc.addEventListener('pointerdown',e=>{bubbleAim(e.clientX,e.clientY)});bc.addEventListener('pointermove',e=>{if(e.buttons)bubbleAim(e.clientX,e.clientY)});bc.addEventListener('touchmove',e=>{const t=e.touches[0];if(t)bubbleAim(t.clientX,t.clientY)},{passive:true})}if(bf)bf.addEventListener('pointerdown',e=>{e.preventDefault();fireBubble()});
 });
+window.addEventListener('keydown',e=>{if(document.getElementById('snakeGameScreen')?.classList.contains('active')){const m={'ArrowUp':'up','ArrowDown':'down','ArrowLeft':'left','ArrowRight':'right'};if(m[e.key]){e.preventDefault();changeSnakeDirection(m[e.key])}}if(document.getElementById('jumpGameScreen')?.classList.contains('active')&&(e.key===' '||e.key==='ArrowUp')){e.preventDefault();jumpAction()}});
+window.addEventListener('resize',()=>{if(document.getElementById('snakeGameScreen')?.classList.contains('active'))resizeSnakeCanvas();if(document.getElementById('jumpGameScreen')?.classList.contains('active'))resizeJumpCanvas();if(document.getElementById('bubbleGameScreen')?.classList.contains('active'))resizeBubbleCanvas()});
 </script>
 
 </body>
