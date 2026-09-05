@@ -766,6 +766,20 @@ window.onload=async function(){
   }
 };
 
+let gameAudioCtx = null;
+function ensureGameAudio(){
+    try{
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if(!AC) return null;
+        if(!gameAudioCtx) gameAudioCtx = new AC();
+        if(gameAudioCtx.state === "suspended") gameAudioCtx.resume().catch(()=>{});
+        return gameAudioCtx;
+    }catch(e){
+        console.warn("Game audio unavailable", e);
+        return null;
+    }
+}
+
 function tone(freq,duration,type="sine",volume=.55,slide=0){
     const ctx=ensureGameAudio(); if(!ctx)return;
     const o=ctx.createOscillator(),g=ctx.createGain(),now=ctx.currentTime;
