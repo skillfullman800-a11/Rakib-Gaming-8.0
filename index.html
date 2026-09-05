@@ -261,6 +261,7 @@ button,input{font-family:inherit}
 /* Puzzle */
 .puzzle-board{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;aspect-ratio:1/1;padding:6px;background:#111;border:2px solid #430000;border-radius:16px}
 .puzzle-tile{border:0;border-radius:10px;background:linear-gradient(145deg,#ef2020,#8d0000);color:#fff;font-size:clamp(20px,7vw,34px);font-weight:800;cursor:pointer;box-shadow:inset 0 0 10px rgba(0,0,0,.2)}
+.puzzle-board > .puzzle-tile{display:flex;align-items:center;justify-content:center;min-width:0;min-height:0;}
 .puzzle-tile.empty{background:#090909;box-shadow:none;cursor:default}
 .puzzle-message{text-align:center;color:#aaa;font-size:13px;margin-top:10px;min-height:18px}
 
@@ -818,9 +819,16 @@ let snakeTouchStartX = 0;
 let snakeTouchStartY = 0;
 
 function openSnakeGame(){
-    document.getElementById("snakeGameScreen").classList.add("active");
+    const screen=document.getElementById("snakeGameScreen");
+    if(!screen)return;
+    screen.classList.add("active");
     document.body.style.overflow = "hidden";
-    ensureGameAudio();updateSoundButtons();setupSnakeCanvas();updateSnakeSpeedButtons();
+    ensureGameAudio();updateSoundButtons();updateSnakeSpeedButtons();
+    // Wait one frame so the active game screen has a real size on mobile.
+    requestAnimationFrame(()=>{
+        setupSnakeCanvas();
+        resetSnake();
+    });
     document.getElementById("snakeBest").innerText = snakeBest;
     document.getElementById("snakeOverlay").classList.remove("show");
     playGameIntro("snakeIntro","SNAKE GAME",()=>showSnakeOverlay("Snake Game", "Eat the food, grow longer and don't hit the wall or yourself.", "START GAME"));
@@ -838,9 +846,11 @@ function setupSnakeCanvas(){
     snakeCanvas = document.getElementById("snakeCanvas");
     if(!snakeCanvas) return;
     const rect = snakeCanvas.getBoundingClientRect();
+    const cssW = Math.max(280, Math.floor(rect.width || snakeCanvas.clientWidth || 300));
+    const cssH = Math.max(280, Math.floor(rect.height || cssW));
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    snakeCanvas.width = Math.floor(rect.width * dpr);
-    snakeCanvas.height = Math.floor(rect.width * dpr);
+    snakeCanvas.width = Math.floor(cssW * dpr);
+    snakeCanvas.height = Math.floor(cssH * dpr);
     snakeCtx = snakeCanvas.getContext("2d");
     snakeSize = snakeCanvas.width / snakeCells;
     drawSnake();
@@ -1185,10 +1195,18 @@ let puzzleMoves = 0;
 let puzzleBest = Number(localStorage.getItem("rakibPuzzleBest") || 0);
 
 function openPuzzleGame(){
-    document.getElementById("puzzleGameScreen").classList.add("active");
+    const screen=document.getElementById("puzzleGameScreen");
+    if(!screen)return;
+    screen.classList.add("active");
     document.body.style.overflow="hidden";ensureGameAudio();updateSoundButtons();
     document.getElementById("puzzleBest").innerText = puzzleBest || "-";
-    if(!puzzleTiles.length) shufflePuzzle();renderPuzzle();
+    if(!Array.isArray(puzzleTiles) || puzzleTiles.length!==16){
+        resetPuzzle();
+        shufflePuzzle();
+    }else{
+        renderPuzzle();
+    }
+    requestAnimationFrame(renderPuzzle);
     playGameIntro("puzzleIntro","PUZZLE GAME");
 }
 function closePuzzleGame(){document.getElementById("puzzleGameScreen").classList.remove("active");document.body.style.overflow=""}
@@ -1289,10 +1307,19 @@ function resetJump(){
     drawJump();
 }
 function startJumpGame(){
+    const screen=document.getElementById("jumpGameScreen");
+    const overlay=document.getElementById("jumpOverlay");
+    if(!jumpCanvas) jumpCanvas=document.getElementById("jumpCanvas");
+    if(!jumpCanvas) return;
+    if(!jumpCanvas.width || !jumpCanvas.height) resizeJumpCanvas();
     resetJump();
     jumpRunning=true;
-    document.getElementById("jumpOverlay").classList.remove("show");
+    jumpOver=false;
+    if(overlay) overlay.classList.remove("show");
+    if(screen) screen.classList.add("active");
+    document.body.style.overflow="hidden";
     jumpLast=performance.now();
+    if(jumpRAF) cancelAnimationFrame(jumpRAF);
     jumpRAF=requestAnimationFrame(jumpLoop);
 }
 function restartJumpGame(){startJumpGame()}
@@ -1452,7 +1479,21 @@ function resetBubbleBattle(){
  stopBubbleGame();bubbleScore=0;botHp=100;playerHp=100;bubbleShots=[];botShots=[];bubbleAngle=-Math.PI/2;
  bubbleFireCooldown=0;bubbleBot.shotTimer=1;bubbleBot.dir=Math.random()<.5?-1:1;setBattlePositions();updateBattleHud();drawBubbleBattle();
 }
-function startBubbleGame(){resetBubbleBattle();bubbleRunning=true;document.getElementById("bubbleOverlay").classList.remove("show");bubbleLast=performance.now();bubbleRAF=requestAnimationFrame(bubbleBattleLoop)}
+function startBubbleGame(){
+  const screen=document.getElementById("bubbleGameScreen");
+  const overlay=document.getElementById("bubbleOverlay");
+  if(!bubbleCanvas) bubbleCanvas=document.getElementById("bubbleCanvas");
+  if(!bubbleCanvas) return;
+  if(!bubbleCanvas.width || !bubbleCanvas.height) resizeBubbleCanvas();
+  resetBubbleBattle();
+  bubbleRunning=true;
+  if(overlay) overlay.classList.remove("show");
+  if(screen) screen.classList.add("active");
+  document.body.style.overflow="hidden";
+  bubbleLast=performance.now();
+  if(bubbleRAF) cancelAnimationFrame(bubbleRAF);
+  bubbleRAF=requestAnimationFrame(bubbleBattleLoop);
+}
 function restartBubbleGame(){startBubbleGame()}
 function stopBubbleGame(){if(bubbleRAF)cancelAnimationFrame(bubbleRAF);bubbleRAF=null;bubbleRunning=false}
 function updateBattleHud(){
@@ -1543,6 +1584,20 @@ document.addEventListener("DOMContentLoaded",function(){
  if(f)f.addEventListener("pointerdown",e=>{e.preventDefault();fireBubble()});
 });
 window.addEventListener("resize",()=>{const s=document.getElementById("bubbleGameScreen");if(s&&s.classList.contains("active"))resizeBubbleCanvas()});
+
+/* RG8_BUTTON_FIX — reliable mobile taps for Jump/Bubble start buttons */
+document.addEventListener("DOMContentLoaded",function(){
+  const js=document.getElementById("jumpStartButton");
+  const bs=document.getElementById("bubbleStartButton");
+  if(js){
+    js.addEventListener("click",function(e){e.preventDefault();e.stopPropagation();startJumpGame();});
+    js.addEventListener("pointerup",function(e){e.preventDefault();});
+  }
+  if(bs){
+    bs.addEventListener("click",function(e){e.preventDefault();e.stopPropagation();startBubbleGame();});
+    bs.addEventListener("pointerup",function(e){e.preventDefault();});
+  }
+});
 </script>
 
 </body>
