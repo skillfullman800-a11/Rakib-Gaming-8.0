@@ -400,6 +400,40 @@ function initRakibSupabase(){
 }
 initRakibSupabase();
 </script>
+
+<style id="professional-game-pass">
+
+
+/* ===== FINAL MOBILE FIT ===== */
+html,body{width:100%;max-width:100%;overflow-x:hidden}
+.game-screen,.mini-game-screen{width:100%;max-width:100vw;box-sizing:border-box}
+.rg-game-body{width:min(calc(100vw - 20px),760px);box-sizing:border-box;margin:0 auto}
+.snake-topbar,.mini-topbar{width:100%;box-sizing:border-box}
+@media(max-width:600px){
+  .rg-game-body{padding-left:0;padding-right:0}
+  #snakeGameScreen .rg-canvas-box{width:min(calc(100vw - 20px),560px);height:auto;aspect-ratio:1/1;margin:0 auto}
+  #snakeGameScreen .snake-controls{width:144px!important;grid-template-columns:repeat(3,44px)!important;grid-template-rows:repeat(3,44px)!important;gap:4px!important;margin:7px auto 0!important}
+  #snakeGameScreen .snake-controls button{font-size:18px!important;border-radius:12px!important}
+  #snakeGameScreen .rg-actions{margin-top:7px!important}
+}
+@media(max-height:760px){
+  #snakeGameScreen .rg-stats{margin-bottom:5px}
+  #snakeGameScreen .rg-speed{margin-bottom:5px}
+  #snakeGameScreen .rg-canvas-box{width:min(calc(100vw - 20px),calc(100dvh - 350px));max-width:560px}
+  #snakeGameScreen .snake-controls{margin-top:4px!important}
+}
+@media (min-width:601px){
+  #snakeGameScreen .rg-canvas-box{max-width:620px;margin-left:auto;margin-right:auto}
+}
+
+@media (max-width:600px) and (min-height:761px){
+  #snakeGameScreen .rg-canvas-box{
+    width:min(calc(100vw - 20px),calc(100dvh - 620px));
+    min-width:250px;
+    max-width:560px;
+  }
+}
+</style>
 </head>
 <body>
 
@@ -703,19 +737,83 @@ window.onload=async function(){
 
 let gameSoundOn = localStorage.getItem('rakibGameSound') !== 'off';
 let gameAudioCtx = null;
-function ensureGameAudio(){try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;if(!gameAudioCtx)gameAudioCtx=new AC();if(gameAudioCtx.state==='suspended')gameAudioCtx.resume().catch(()=>{});return gameAudioCtx}catch(e){return null}}
-function tone(freq,duration,type='sine',volume=.25,slide=0){const ctx=ensureGameAudio();if(!ctx)return;try{const o=ctx.createOscillator(),g=ctx.createGain(),now=ctx.currentTime;o.type=type;o.frequency.setValueAtTime(freq,now);if(slide)o.frequency.exponentialRampToValueAtTime(Math.max(50,freq+slide),now+duration);g.gain.setValueAtTime(.0001,now);g.gain.exponentialRampToValueAtTime(Math.min(.75,volume),now+.008);g.gain.exponentialRampToValueAtTime(.0001,now+duration);o.connect(g);g.connect(ctx.destination);o.start(now);o.stop(now+duration+.03)}catch(e){}}
-function playGameSound(kind){if(!gameSoundOn)return;const map={click:[420,.055,'square',.16,70],start:[330,.08,'sine',.22,160],eat:[600,.07,'square',.22,260],jump:[280,.11,'triangle',.2,420],shoot:[170,.055,'square',.2,560],hit:[120,.09,'sawtooth',.18,-30],tile:[420,.045,'triangle',.14,90],shuffle:[220,.08,'sine',.16,260],score:[520,.06,'square',.15,120],win:[520,.1,'sine',.2,260],lose:[180,.16,'sawtooth',.18,-70],intro:[220,.1,'sine',.16,420]};const a=map[kind]||map.click;tone(...a);if(kind==='win')setTimeout(()=>tone(780,.12,'sine',.18,180),100)}
-function updateSoundButtons(){document.querySelectorAll('.sound-btn').forEach(b=>{b.innerText=gameSoundOn?'🔊 ON':'🔇 OFF';b.classList.toggle('on',gameSoundOn);b.setAttribute('aria-pressed',gameSoundOn?'true':'false')})}
-function toggleGameSound(){gameSoundOn=!gameSoundOn;localStorage.setItem('rakibGameSound',gameSoundOn?'on':'off');if(gameSoundOn){ensureGameAudio();playGameSound('click')}updateSoundButtons()}
-function playGameIntro(id,sub,after){const el=document.getElementById(id);if(!el){after&&after();return}const subEl=el.querySelector('.game-intro-sub');if(subEl)subEl.innerText=sub;el.classList.add('show');if(gameSoundOn){ensureGameAudio();playGameSound('intro');setTimeout(()=>playGameSound('start'),150)}setTimeout(()=>{el.classList.remove('show');after&&after()},1500)}
+let gameMasterGain = null;
+
+function ensureGameAudio(){
+  try{
+    const AC=window.AudioContext||window.webkitAudioContext;
+    if(!AC) return null;
+    if(!gameAudioCtx){
+      gameAudioCtx=new AC();
+      gameMasterGain=gameAudioCtx.createGain();
+      gameMasterGain.gain.value=0.92;
+      gameMasterGain.connect(gameAudioCtx.destination);
+    }
+    if(gameAudioCtx.state==='suspended') gameAudioCtx.resume().catch(()=>{});
+    return gameAudioCtx;
+  }catch(e){return null}
+}
+
+function tone(freq,duration,type='sine',volume=.65,slide=0){
+  if(!gameSoundOn) return;
+  const ctx=ensureGameAudio();
+  if(!ctx||!gameMasterGain) return;
+  try{
+    const o=ctx.createOscillator(),g=ctx.createGain(),now=ctx.currentTime;
+    o.type=type;
+    o.frequency.setValueAtTime(Math.max(40,freq),now);
+    if(slide) o.frequency.exponentialRampToValueAtTime(Math.max(40,freq+slide),now+duration);
+    g.gain.setValueAtTime(.0001,now);
+    g.gain.exponentialRampToValueAtTime(Math.min(.9,volume),now+.012);
+    g.gain.exponentialRampToValueAtTime(.0001,now+duration);
+    o.connect(g);g.connect(gameMasterGain);o.start(now);o.stop(now+duration+.03);
+  }catch(e){}
+}
+
+function playGameSound(kind){
+  if(!gameSoundOn) return;
+  const map={
+    click:[520,.07,'square',.48,80],start:[340,.14,'sawtooth',.58,260],
+    eat:[620,.10,'square',.52,300],jump:[260,.16,'triangle',.58,520],
+    shoot:[150,.10,'sawtooth',.62,700],hit:[105,.14,'square',.68,-35],
+    tile:[480,.075,'triangle',.42,130],shuffle:[210,.12,'sine',.45,320],
+    score:[560,.09,'square',.45,160],win:[520,.14,'sine',.62,320],
+    lose:[180,.22,'sawtooth',.6,-90],intro:[190,.16,'sine',.52,520]
+  };
+  tone(...(map[kind]||map.click));
+  if(kind==='win'){setTimeout(()=>tone(780,.14,'sine',.58,180),100);setTimeout(()=>tone(980,.18,'sine',.52,80),210)}
+}
+
+function updateSoundButtons(){
+  document.querySelectorAll('.sound-btn').forEach(b=>{
+    b.innerText=gameSoundOn?'🔊 ON':'🔇 OFF';
+    b.classList.toggle('on',gameSoundOn);
+    b.setAttribute('aria-pressed',gameSoundOn?'true':'false');
+  });
+}
+
+function toggleGameSound(){
+  gameSoundOn=!gameSoundOn;
+  localStorage.setItem('rakibGameSound',gameSoundOn?'on':'off');
+  if(gameSoundOn){ensureGameAudio();tone(660,.11,'square',.7,120)}
+  updateSoundButtons();
+}
+
+function playGameIntro(id,sub,after){
+  const el=document.getElementById(id);
+  if(!el){if(after)after();return}
+  const subEl=el.querySelector('.game-intro-sub');
+  if(subEl)subEl.innerText=sub;
+  el.classList.add('show');
+  if(gameSoundOn){ensureGameAudio();playGameSound('intro');setTimeout(()=>playGameSound('start'),170)}
+  setTimeout(()=>{el.classList.remove('show');if(after)after()},1500);
+}
+
 function rgSound(k){try{playGameSound(k)}catch(e){}}
 
 /* =====================================================
    NEW 2D GAMES — self contained
 ===================================================== */
-function rgSound(k){try{if(typeof playGameSound==='function')playGameSound(k)}catch(e){}}
-
 /* ---------------- PROFESSIONAL 2D GAME ENGINE ---------------- */
 let snakeCanvas=null,snakeCtx=null,snakeCells=24,snakeBody=[],snakeFood={x:5,y:5};
 let snakeDirection={x:1,y:0},snakeNextDirection={x:1,y:0},snakeTimer=null,snakeRunning=false,snakePaused=false;
@@ -792,6 +890,8 @@ function battleWin(){stopBubbleGame();bubbleScore+=100;updateBattleHud();rgSound
 function battleLose(){stopBubbleGame();rgSound('lose');showBubbleOverlay('GAME OVER','Your HP reached 0. Try again!','PLAY AGAIN')}
 
 /* Input */
+document.addEventListener('pointerdown',()=>{if(gameSoundOn)ensureGameAudio()},{passive:true});
+
 document.addEventListener('DOMContentLoaded',()=>{
  const sc=document.getElementById('snakeCanvas');
  if(sc){let sx=0,sy=0;sc.addEventListener('touchstart',e=>{const t=e.touches[0];sx=t.clientX;sy=t.clientY},{passive:true});sc.addEventListener('touchend',e=>{const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;if(Math.max(Math.abs(dx),Math.abs(dy))>22)changeSnakeDirection(Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up'))},{passive:true})}
@@ -806,44 +906,3 @@ window.addEventListener('resize',()=>{if(document.getElementById('snakeGameScree
 
 </body>
 </html>
-
-/* ===== PROFESSIONAL GAME PASS 2026 ===== */
-.game-screen,.mini-game-screen{background:#050607!important;color:#fff;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
-.rg-game-body{width:min(100% - 24px,760px);padding:12px 0 calc(26px + env(safe-area-inset-bottom));position:relative}
-.rg-topbar{width:100%;box-sizing:border-box;gap:8px}
-.sound-btn{min-width:76px;min-height:42px;border:1px solid #6e1016!important;background:linear-gradient(145deg,#26080b,#100406)!important;color:#fff!important;border-radius:12px!important;font-size:13px!important;touch-action:manipulation}
-.sound-btn.on{box-shadow:0 0 18px rgba(255,45,55,.22)}
-.rg-stats{gap:9px;margin-bottom:10px}
-.rg-stats>div{padding:8px 10px;border-radius:14px;background:linear-gradient(145deg,#121416,#0b0d0f);border:1px solid #272a2e;box-shadow:inset 0 1px rgba(255,255,255,.03)}
-.rg-stats b{font-size:23px}
-.rg-speed{gap:6px;margin-bottom:10px}
-.rg-speed button{min-height:42px;border-radius:12px;background:#101214;border-color:#292d31;font-size:13px}
-.rg-speed button.active{background:linear-gradient(145deg,#41090d,#1a0507);border-color:#ff2935;box-shadow:0 0 14px rgba(255,32,48,.18)}
-.rg-canvas-box{width:100%;height:auto;aspect-ratio:1/1;min-height:0;max-height:none;border-radius:20px;border:2px solid #9f1721;background:#050807;box-shadow:0 0 28px rgba(255,25,35,.13),inset 0 0 40px rgba(0,0,0,.35);position:relative}
-.rg-canvas-box canvas{width:100%!important;height:100%!important;display:block!important}
-.jump-box{aspect-ratio:16/10;min-height:0;border-color:#246b8a;background:#071019;box-shadow:0 0 28px rgba(35,174,230,.11),inset 0 0 50px rgba(0,0,0,.35)}
-.bubble-box{aspect-ratio:4/5;min-height:0;border-color:#246b8a;background:#03070b;box-shadow:0 0 30px rgba(50,170,255,.12),inset 0 0 50px rgba(0,0,0,.4)}
-.rg-actions{gap:9px;margin-top:9px}.rg-actions button{min-height:44px;border-radius:12px;background:linear-gradient(145deg,#1b0709,#0e0405);border-color:#5d1117;font-size:13px;touch-action:manipulation}
-.rg-actions .jump-main{background:linear-gradient(145deg,#8c1420,#43080e);border-color:#ff3342;box-shadow:0 0 15px rgba(255,40,55,.18)}
-.snake-controls{width:clamp(144px,46vw,174px)!important;grid-template-columns:repeat(3,1fr)!important;grid-template-rows:repeat(3,clamp(42px,12vw,54px))!important;gap:5px!important;margin:10px auto 0!important}
-.snake-controls button{width:100%;min-width:0;border-radius:14px;border:1px solid #5d151b;background:linear-gradient(145deg,#1b080a,#0d0506);font-size:clamp(18px,6vw,23px);touch-action:manipulation}
-.snake-controls button:active{transform:scale(.94);background:#3a0a0f}
-.rg-help{font-size:10px;margin:7px 0 0;color:#667078}
-.rg-overlay{background:rgba(2,4,6,.78);backdrop-filter:blur(5px)}
-.rg-overlay>div{background:linear-gradient(145deg,#151719,#090a0b);border:1px solid #5e151c;box-shadow:0 18px 50px rgba(0,0,0,.55),0 0 25px rgba(255,25,40,.08)}
-.rg-overlay button{background:linear-gradient(145deg,#d51f2d,#7e0d16);border-color:#ff3b47;box-shadow:0 0 18px rgba(255,35,50,.2);touch-action:manipulation}
-.rg-puzzle{width:min(100%,500px)!important;margin:4px auto 9px!important;gap:6px!important;padding:6px!important;background:linear-gradient(145deg,#111416,#080a0b)!important;border:1px solid #3a3f43!important;box-shadow:0 0 25px rgba(255,25,35,.08)}
-.rg-puzzle .puzzle-tile{border:1px solid #7d171e!important;border-radius:12px!important;background:linear-gradient(145deg,#e22a38,#7f0f17)!important;box-shadow:inset 0 1px rgba(255,255,255,.16),0 5px 10px rgba(0,0,0,.22);font-size:clamp(18px,6vw,30px)!important;transition:transform .12s,filter .12s}
-.rg-puzzle .puzzle-tile:active{transform:scale(.94);filter:brightness(1.15)}
-.rg-puzzle .puzzle-tile.empty{background:radial-gradient(circle,#15181a,#060708)!important;border-color:#262b2f!important;box-shadow:none}
-.bubble-hud{gap:6px;margin-bottom:8px}.bubble-hud>div{background:linear-gradient(145deg,#10161b,#080c10);border-color:#23343f;padding:7px;border-radius:12px}
-.bubble-hud i{height:7px!important;background:#171d21!important;border-radius:99px;overflow:hidden}.bubble-hud em{display:block;height:100%;width:100%;background:linear-gradient(90deg,#ff3447,#ff9b42);border-radius:99px;transition:width .18s}.bubble-hud .player em{background:linear-gradient(90deg,#20e39a,#2f9fff)}
-.bubble-controls{grid-template-columns:1fr 1.4fr 1fr}.bubble-control{min-height:44px}
-.game-intro{position:absolute!important;inset:0!important;z-index:100!important;display:none;align-items:center;justify-content:center;background:radial-gradient(circle at center,rgba(100,7,16,.92),rgba(2,5,8,.985) 72%);overflow:hidden;pointer-events:none}
-.game-intro.show{display:flex!important}
-.game-intro::before{width:min(48vw,220px);height:min(48vw,220px);border:1px solid rgba(255,48,62,.35);box-shadow:0 0 40px rgba(255,30,50,.12)}
-.game-intro::after{height:1px;background:linear-gradient(90deg,transparent,#ff3344,transparent)}
-.game-intro-box{padding:24px 16px}.game-intro-title{font-size:clamp(28px,8.5vw,52px);letter-spacing:2.5px;color:#ff3545;text-shadow:0 0 12px rgba(255,25,45,.75),0 0 38px rgba(255,25,45,.3)}
-.game-intro-sub{color:#aeb8bf;font-size:10px;letter-spacing:4px;margin-top:10px}
-@media(max-width:420px){.rg-game-body{width:calc(100% - 18px)}.rg-stats>div{padding:7px}.rg-stats b{font-size:21px}.rg-speed button{font-size:12px}.snake-controls{width:150px!important;grid-template-rows:repeat(3,46px)!important}.rg-actions button{min-height:42px;font-size:12px}}
-@media(max-height:720px){.rg-game-body{padding-top:8px}.rg-canvas-box{aspect-ratio:1/1}.jump-box{aspect-ratio:16/9}.bubble-box{aspect-ratio:5/6}.snake-controls{margin-top:7px!important}.rg-help{display:none}.rg-actions{margin-top:7px}}
