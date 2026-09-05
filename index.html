@@ -434,6 +434,35 @@ html,body{width:100%;max-width:100%;overflow-x:hidden}
   }
 }
 </style>
+
+<style id="final-professional-fixes">
+/* FINAL MOBILE SNAKE FIT — controls must stay inside viewport */
+@media (max-width:600px){
+  #snakeGameScreen{height:100dvh!important;max-height:100dvh!important;overflow:hidden!important}
+  #snakeGameScreen .rg-game-body{height:calc(100dvh - 54px)!important;max-height:calc(100dvh - 54px)!important;overflow:hidden!important;display:flex!important;flex-direction:column!important;align-items:stretch!important;padding:6px 0 6px!important;box-sizing:border-box!important}
+  #snakeGameScreen .rg-stats{flex:0 0 auto!important;margin:0 0 5px!important}
+  #snakeGameScreen .rg-speed{flex:0 0 auto!important;margin:0 0 6px!important;padding:5px!important}
+  #snakeGameScreen .rg-speed span{font-size:10px!important;margin-bottom:2px!important}
+  #snakeGameScreen .rg-speed button{padding:6px 3px!important;font-size:12px!important}
+  #snakeGameScreen .rg-canvas-box{flex:1 1 auto!important;width:min(calc(100vw - 20px),560px)!important;max-width:560px!important;min-height:190px!important;height:auto!important;aspect-ratio:1/1!important;margin:0 auto!important;box-sizing:border-box!important}
+  #snakeGameScreen .rg-actions{flex:0 0 auto!important;margin:6px 0 0!important;gap:8px!important}
+  #snakeGameScreen .rg-actions button{min-height:36px!important;padding:7px 8px!important;font-size:12px!important}
+  #snakeGameScreen .snake-controls{flex:0 0 auto!important;width:140px!important;height:108px!important;grid-template-columns:44px 44px 44px!important;grid-template-rows:34px 34px 34px!important;gap:3px!important;margin:5px auto 0!important}
+  #snakeGameScreen .snake-controls button{min-height:34px!important;height:34px!important;font-size:17px!important;border-radius:10px!important}
+  #snakeGameScreen .rg-help{display:none!important}
+}
+@media (max-width:600px) and (max-height:760px){
+  #snakeGameScreen .rg-stats{margin-bottom:3px!important}
+  #snakeGameScreen .rg-speed{margin-bottom:4px!important;padding:4px!important}
+  #snakeGameScreen .rg-speed button{padding:5px 2px!important;font-size:11px!important}
+  #snakeGameScreen .rg-canvas-box{min-height:160px!important}
+  #snakeGameScreen .rg-actions{margin-top:4px!important}
+  #snakeGameScreen .snake-controls{height:96px!important;grid-template-rows:30px 30px 30px!important;grid-template-columns:40px 40px 40px!important;width:128px!important}
+  #snakeGameScreen .snake-controls button{height:30px!important;min-height:30px!important;font-size:15px!important}
+}
+/* Ethereal aura intro */
+.game-intro-title{letter-spacing:3px!important}
+</style>
 </head>
 <body>
 
@@ -799,13 +828,39 @@ function toggleGameSound(){
   updateSoundButtons();
 }
 
+function playAuraIntroSound(){
+  if(!gameSoundOn) return;
+  const ctx=ensureGameAudio();
+  if(!ctx||!gameMasterGain) return;
+  try{
+    const now=ctx.currentTime;
+    const notes=[110,164.81,220,329.63,440,659.25];
+    notes.forEach((freq,i)=>{
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      o.type=i<3?'sine':'triangle';
+      o.frequency.setValueAtTime(freq,now+i*.12);
+      o.detune.value=(i%2?4:-4);
+      g.gain.setValueAtTime(.0001,now+i*.12);
+      g.gain.exponentialRampToValueAtTime(i<3?.13:.08,now+i*.12+.08);
+      g.gain.exponentialRampToValueAtTime(.0001,now+i*.12+1.15);
+      o.connect(g);g.connect(gameMasterGain);o.start(now+i*.12);o.stop(now+i*.12+1.2);
+    });
+    const pad=ctx.createOscillator(),pg=ctx.createGain();
+    pad.type='sine'; pad.frequency.value=55;
+    pg.gain.setValueAtTime(.0001,now);
+    pg.gain.exponentialRampToValueAtTime(.11,now+.18);
+    pg.gain.exponentialRampToValueAtTime(.0001,now+1.35);
+    pad.connect(pg);pg.connect(gameMasterGain);pad.start(now);pad.stop(now+1.4);
+  }catch(e){}
+}
+
 function playGameIntro(id,sub,after){
   const el=document.getElementById(id);
   if(!el){if(after)after();return}
   const subEl=el.querySelector('.game-intro-sub');
   if(subEl)subEl.innerText=sub;
   el.classList.add('show');
-  if(gameSoundOn){ensureGameAudio();playGameSound('intro');setTimeout(()=>playGameSound('start'),170)}
+  if(gameSoundOn){ensureGameAudio();playAuraIntroSound()}
   setTimeout(()=>{el.classList.remove('show');if(after)after()},1500);
 }
 
@@ -887,7 +942,7 @@ function drawBubbleShot(s,c){bubbleCtx.fillStyle=c;bubbleCtx.shadowColor=c;bubbl
 function drawBubbleFighter(p,bot){const ctx=bubbleCtx,cx=p.x+p.w/2,headR=p.w*.27,headY=p.y+p.h*.2,bodyY=p.y+p.h*.38;ctx.save();ctx.fillStyle='rgba(0,0,0,.32)';ctx.beginPath();ctx.ellipse(cx,p.y+p.h+8,p.w*.65,6,0,0,Math.PI*2);ctx.fill();/* legs */ctx.strokeStyle=bot?'#c9d4df':'#e7f1ff';ctx.lineWidth=Math.max(5,p.w*.11);ctx.lineCap='round';ctx.beginPath();ctx.moveTo(cx,bodyY+p.h*.34);ctx.lineTo(cx-p.w*.22,p.y+p.h);ctx.moveTo(cx,bodyY+p.h*.34);ctx.lineTo(cx+p.w*.22,p.y+p.h);ctx.stroke();/* body */const bg=ctx.createLinearGradient(p.x,bodyY,p.x+p.w,bodyY+p.h*.35);bg.addColorStop(0,bot?'#e2384c':'#2d9dff');bg.addColorStop(1,bot?'#771322':'#124d9e');ctx.fillStyle=bg;roundRectPath(ctx,p.x+p.w*.16,bodyY,p.w*.68,p.h*.38,8);ctx.fill();/* arms + blaster */ctx.strokeStyle=bot?'#f0b28e':'#efb08a';ctx.lineWidth=Math.max(5,p.w*.105);ctx.beginPath();ctx.moveTo(p.x+p.w*.2,bodyY+p.h*.1);ctx.lineTo(p.x-p.w*.05,bodyY+p.h*.28);ctx.stroke();ctx.beginPath();ctx.moveTo(p.x+p.w*.8,bodyY+p.h*.1);ctx.lineTo(p.x+p.w*.98,bodyY+p.h*.2);ctx.stroke();const gunX=bot?cx:cx+Math.cos(bubbleAngle)*p.w*.48,gunY=bodyY+p.h*.17+(bot?p.h*.08:Math.sin(bubbleAngle)*p.w*.15);ctx.strokeStyle=bot?'#ff7785':'#7de2ff';ctx.lineWidth=Math.max(6,p.w*.13);ctx.beginPath();ctx.moveTo(cx,bodyY+p.h*.16);ctx.lineTo(gunX,gunY);ctx.stroke();/* neck/head */ctx.fillStyle=bot?'#d49a7b':'#e7ab83';ctx.fillRect(cx-p.w*.08,headY+headR*.45,p.w*.16,p.h*.12);ctx.beginPath();ctx.arc(cx,headY,headR,0,Math.PI*2);ctx.fill();/* hair/helmet */ctx.fillStyle=bot?'#1b2632':'#17212d';ctx.beginPath();ctx.arc(cx,headY-headR*.1,headR*.98,Math.PI,Math.PI*2);ctx.fill();if(bot){ctx.fillStyle='#ff586c';ctx.fillRect(cx-headR*.8,headY-headR*.02,headR*1.6,headR*.17)}else{ctx.fillStyle='#58c9ff';ctx.fillRect(cx-headR*.75,headY-headR*.15,headR*1.5,headR*.12)}ctx.fillStyle='#17212b';ctx.beginPath();ctx.arc(cx+(bot?-1:1)*headR*.38,headY,Math.max(1.5,p.w*.035),0,Math.PI*2);ctx.fill();ctx.restore()}
 function showBubbleOverlay(t,p,b){const o=document.getElementById('bubbleOverlay');if(!o)return;document.getElementById('bubbleOverlayTitle').innerText=t;document.getElementById('bubbleOverlayText').innerText=p;o.querySelector('button').innerText=b;o.classList.add('show')}
 function battleWin(){stopBubbleGame();bubbleScore+=100;updateBattleHud();rgSound('win');showBubbleOverlay('YOU WIN!','Bot defeated • Final score: '+bubbleScore,'PLAY AGAIN')}
-function battleLose(){stopBubbleGame();rgSound('lose');showBubbleOverlay('GAME OVER','Your HP reached 0. Try again!','PLAY AGAIN')}
+function battleLose(){stopBubbleGame();rgSound('lose');showBubbleOverlay('YOU LOSE','Your HP reached 0. Try again!','PLAY AGAIN')}
 
 /* Input */
 document.addEventListener('pointerdown',()=>{if(gameSoundOn)ensureGameAudio()},{passive:true});
